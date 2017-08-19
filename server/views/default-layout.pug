@@ -1,0 +1,32 @@
+//Default website layout
+
+html
+    head
+        title=locals.data.title
+
+        block css
+            link(rel="stylesheet" type="text/css" href="/client/css/font-awesome.min.css")
+            link(rel="stylesheet" type="text/css" href="/client/css/default-layout.css")
+
+        block scripts
+            script(src="/client/js/jquery-3.2.1.min.js")
+
+    body
+        block header
+            each warning in locals.data.warnings
+                div(class="message-box-warning")=warning
+
+            each message in locals.data.messages
+                div(class="message-box-message")=message
+
+            each success in locals.data.successes
+                div(class="message-box-success")=success
+
+            div(class="heading")=locals.data.heading
+
+        block content
+
+        block footer
+            div(class="footer")
+                script.
+                    document.write('&copy;' + new Date().getFullYear() + ' Hometify')

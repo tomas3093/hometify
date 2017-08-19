@@ -1,0 +1,17 @@
+extends default-layout
+
+block append scripts
+    script(src="/client/js/song-submit-form.js")
+
+    form(action="/new/song" method="post" enctype="multipart/form-data")
+        input(id="track-name-field" name="track_name" placeholder="Song name")
+        input(id="artist-name-field" name="artist_name" placeholder="Name of the artist")
+        input(id="album-name-field" name="album_name" placeholder="Album name")
+        input(id="song-file-upload" name="uploaded_file" type="file")
+
+        input(id="submit-btn" type="submit" value="Submit")
+
+block append content
+    each item in locals.data.items
+        ul
+            li=item.artist_name + " - " + item.track_name

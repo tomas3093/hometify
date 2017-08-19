@@ -1,0 +1,30 @@
+.heading {
+    font-size: 125%;
+}
+
+.message-box-warning {
+    margin: 5px;
+    border: solid red 1px;
+    padding: 2px;
+    color: #ff0000;
+}
+
+.message-box-message {
+    margin: 5px;
+    border: solid blue 1px;
+    padding: 2px;
+    color: blue;
+}
+
+.message-box-success {
+    margin: 5px;
+    border: solid #00ff00 1px;
+    padding: 2px;
+    color: #00ff00;
+}
+
+.footer {
+    font-size: 80%;
+    font-style: italic;
+    padding: 15px;
+}

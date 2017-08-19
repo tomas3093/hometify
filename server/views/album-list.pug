@@ -1,0 +1,17 @@
+extends default-layout
+
+block append css
+    link(rel="stylesheet" type="text/css" href="/client/css/item-list.css")
+
+block append content
+    div(class="item-list-box")
+        each item in locals.data.items
+            div(class="item-box")
+                div(class="img-box")
+                    img(src="/client/img/albums/" + item.album_id + ".png"
+                    onerror="this.src='/client/img/albums/default.png'"
+                    alt=item.album_name width="50" height="50")
+
+                div(class="content-box")
+                    div(class="content-box-dsc"): a(href="")
+                    div(class="content-box-name"): a(href="")=item.track_name
