@@ -2,17 +2,24 @@
 
 html
     head
+        meta(charset="UTF-8")
+        meta(name="viewport" content="width=device-width, initial-scale=1.0")
+
         title=locals.data.title
 
         block css
-            link(rel="stylesheet" type="text/css" href="/client/css/font-awesome.min.css")
             link(rel="stylesheet" type="text/css" href="/client/css/default-layout.css")
 
         block scripts
             script(src="/client/js/jquery-3.2.1.min.js")
 
     body
+
         block header
+
+            header
+                h1 Hometify
+
             each warning in locals.data.warnings
                 div(class="message-box-warning")=warning
 
@@ -27,6 +34,6 @@ html
         block content
 
         block footer
-            div(class="footer")
+            footer
                 script.
-                    document.write('&copy;' + new Date().getFullYear() + ' Hometify')
+                    document.write("<strong><b>&copy;</b>" + new Date().getFullYear() + " Hometify</strong>")

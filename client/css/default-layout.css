@@ -1,30 +1,102 @@
-.heading {
-    font-size: 125%;
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+body {
+    line-height: 1;
+}
+ol, ul {
+    list-style: none;
+}
+blockquote, q {
+    quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
 }
 
-.message-box-warning {
-    margin: 5px;
-    border: solid red 1px;
-    padding: 2px;
-    color: #ff0000;
+* {
+    box-sizing: border-box;
 }
 
-.message-box-message {
-    margin: 5px;
-    border: solid blue 1px;
-    padding: 2px;
-    color: blue;
+input, textarea, select, a, button {
+    outline: 0;
 }
 
-.message-box-success {
-    margin: 5px;
-    border: solid #00ff00 1px;
-    padding: 2px;
-    color: #00ff00;
+@font-face {
+    font-family: 'jaapokki';
+    src: url('../fonts/jaapokki/jaapokkisubtract-regular.eot') format('embedded-opentype'),
+         url('../fonts/jaapokki/jaapokkisubtract-regular.woff') format('woff'),
+         url('../fonts/jaapokki/jaapokkisubtract-regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
 }
 
-.footer {
-    font-size: 80%;
-    font-style: italic;
-    padding: 15px;
+
+
+body {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    background-color: #1d1c1c;
+}
+
+header {
+    background-color: #343434;
+}
+
+h1 {
+    padding: 120px 0 120px 0;
+    font-family: "jaapokki";
+    font-size: 280%;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 15px;
+    color: #cc2b00;
+}
+
+strong {
+    font-family: "jaapokki", "Arial Black", Impact;
+    font-size: 120%;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: #cc2b00;
+}
+
+footer {
+    padding: 50px 0 50px 0;
+    text-align: center;
+    background-color: #313030;
 }

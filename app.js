@@ -18,7 +18,7 @@ app.set('view engine', 'pug');
 //support for json and url encoded bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-var port = 2000;
+var port = 2001;
 serv.listen(port);
 console.log('Server started at http://localhost:' + port);
 //Database
@@ -26,7 +26,7 @@ var mysql = require('mysql');
 var db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "S3cur3DB",
+    password: "S3cur3DBRaspi",
     database: "hometify"
 });
 //########################### ROUTES ###########################
@@ -71,7 +71,7 @@ app.get('/album/:id', function (req, res) {
     });
 });
 //TODO pridat automaticke doplnanie poloziek pocas pisania cez AJAX
-//ARTIST
+//NEW ARTIST FORM
 /**
  * Form for new artist submition
  */
@@ -113,7 +113,7 @@ app.post('/new/artist', function (req, res) {
         }
     });
 });
-//ALBUM
+//NEW ALBUM FORM
 /**
  * Form for new album submition
  */
@@ -156,8 +156,7 @@ app.post('/new/album', function (req, res) {
         }
     });
 });
-//TODO Dorobit upload formular
-//SONG
+//NEW SONG FORM
 /**
  * Form for new song submition
  */
