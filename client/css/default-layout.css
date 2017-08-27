@@ -57,19 +57,38 @@ input, textarea, select, a, button {
 
 @font-face {
     font-family: 'jaapokki';
-    src: url('../fonts/jaapokki/jaapokkisubtract-regular.eot') format('embedded-opentype'),
+    src: url('../fonts/jaapokki/jaapokkisubtract-regular.eot');
+    src: url('../fonts/jaapokki/jaapokkisubtract-regular.eot?#iefix') format('embedded-opentype'),
          url('../fonts/jaapokki/jaapokkisubtract-regular.woff') format('woff'),
          url('../fonts/jaapokki/jaapokkisubtract-regular.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
-
 }
 
+@font-face {
+    font-family: 'montserrat';
+    src: url('../fonts/montserrat-light/montserrat-light-webfont.eot');
+    src: url('../fonts/montserrat-light/montserrat-light-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/montserrat-light/montserrat-light-webfont.woff') format('woff'),
+         url('../fonts/montserrat-light/montserrat-light-webfont.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'montserrat';
+    src: url('../fonts/montserrat-extralight/montserrat-extralight-webfont.eot');
+    src: url('../fonts/montserrat-extralight/montserrat-extralight-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/montserrat-extralight/montserrat-extralight-webfont.woff') format('woff'),
+         url('../fonts/montserrat-extralight/montserrat-extralight-webfont.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
 
 
 body {
     font-size: 16px;
-    font-family: Arial, sans-serif;
+    font-family: "montserrat", Arial, sans-serif;
     background-color: #1d1c1c;
 }
 
@@ -85,6 +104,11 @@ h1 {
     text-align: center;
     letter-spacing: 15px;
     color: #cc2b00;
+}
+
+p {
+    color: #dedada;
+    font-weight: 200;
 }
 
 strong {

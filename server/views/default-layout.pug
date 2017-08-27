@@ -29,11 +29,13 @@ html
             each success in locals.data.successes
                 div(class="message-box-success")=success
 
-            div(class="heading")=locals.data.heading
+            div(class="heading")
+                p=locals.data.heading
+
 
         block content
 
         block footer
             footer
                 script.
-                    document.write("<strong><b>&copy;</b>" + new Date().getFullYear() + " Hometify</strong>")
+                    document.write("<strong>&copy;" + new Date().getFullYear() + " Hometify</strong>")

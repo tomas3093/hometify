@@ -7,8 +7,3 @@ block append content
     form(action="/new/artist" method="post")
         input(id="artist-name-field" name="artist_name" placeholder="Name of the artist")
         input(id="submit-btn" type="submit")
-
-    each item in locals.data.items
-        ul
-            li=item.artist_name
-

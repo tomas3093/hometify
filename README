@@ -1,7 +1,3 @@
-This is a git repo Hometify.
-Or no?
-I am not sure.
-But maybe yes.
-I really don´t know!
+Zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
 
-Let's get to work!
+Spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside

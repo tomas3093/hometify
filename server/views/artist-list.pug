@@ -1,15 +1,13 @@
 extends default-layout
 
 block append css
-    link(rel="stylesheet" type="text/css" href="/client/css/item-list.css")
 
 block append content
     div(class="item-list-box")
         each item in locals.data.items
             div(class="item-box")
                 div(class="img-box")
-                    img(src="/client/img/artists/" + item.artist_id + ".png"
-                        onerror="this.src='/client/img/artists/default.png'"
+                    img(src="/client/img/default-note.svg"
                         alt=item.artist_name width="50" height="50")
                 div(class="content-box")
                     div(class="content-box-dsc"): a(href="")

@@ -1,0 +1,26 @@
+.song-list {
+    margin: 10px 0;
+}
+
+.song {
+    padding: 15px;
+    min-height: 80px;
+}
+
+.song:hover {
+    background-color: #191818;
+}
+
+.img-box {
+    float: left;
+}
+
+.info-box {
+    margin-left: 50px;
+    padding-left: 15px;
+}
+
+.song a:link, .song a:visited {
+    text-decoration: none;
+    color: #dedada;
+}

@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var SongListData_1 = require("./server/classes/SongListData");
 var ArtistListData_1 = require("./server/classes/ArtistListData");
-var AlbumListData_1 = require("./server/classes/AlbumListData");
 var TemplateData_1 = require("./server/classes/TemplateData");
 var express = require('express');
 var getJSON = require('get-json');
@@ -70,88 +69,103 @@ app.get('/album/:id', function (req, res) {
         });
     });
 });
-//TODO pridat automaticke doplnanie poloziek pocas pisania cez AJAX
 //NEW ARTIST FORM
 /**
  * Form for new artist submition
  */
 app.get('/new/artist', function (req, res) {
-    getJSON('http://localhost:2000/data/artists', function (err, items) {
-        var data = new ArtistListData_1.ArtistListData("New artist", undefined, undefined, undefined, "Add new artist", items);
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.render('artist-submit-form', { data: data });
-        }
-    });
+    var data = new TemplateData_1.TemplateData("New artist", undefined, undefined, undefined, "Add new artist");
+    res.render('artist-submit-form', { data: data });
 });
 /**
  * Submitted form data handle
  */
 app.post('/new/artist', function (req, res) {
-    var data = new ArtistListData_1.ArtistListData("New artist", undefined, undefined, undefined, "Add new artist", []);
-    //Overenie ci zadana hodnota uz existuje
-    db.query('SELECT * FROM artists ' +
-        'WHERE artist_name = ?', [req.body.artist_name], function (db_err, db_res) {
-        //AK NEEXISTUJE, ZAPIS JU DO DB
-        if (db_res[0] == null) {
-            db.query("INSERT INTO artists (artist_name) VALUES (?)", req.body.artist_name, function (db_err2, db_res_2) {
-                if (db_err2) {
-                    console.log(db_err2);
-                }
-                else {
-                    data.addSuccessMsg('Artist ' + req.body.artist_name + ' added successfully');
-                }
+    var data = new TemplateData_1.TemplateData("New artist", undefined, undefined, undefined, "Add new artist");
+    var artist = req.body.artist_name.trim();
+    //INPUT IS VALID
+    if (artist.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$")) {
+        //Overenie ci zadana hodnota uz existuje
+        db.query('SELECT * FROM artists ' +
+            'WHERE artist_name = ?', [artist], function (db_err, db_res) {
+            //AK NEEXISTUJE, ZAPIS JU DO DB
+            if (db_res[0] == null) {
+                db.query("INSERT INTO artists (artist_name) VALUES (?)", artist, function (db_err2, db_res_2) {
+                    if (db_err2) {
+                        data.addWarningMsg('Error: ' + db_err2);
+                    }
+                    else {
+                        data.addSuccessMsg('Artist ' + artist + ' added successfully');
+                    }
+                    res.render('artist-submit-form', { data: data });
+                });
+                //AK EXISTUJE
+            }
+            else {
+                data.addWarningMsg('Error: ' + artist + ' already exists!');
                 res.render('artist-submit-form', { data: data });
-            });
-            //AK EXISTUJE
-        }
-        else {
-            data.addWarningMsg('Error: artist ' + req.body.artist_name + ' already exists');
-            res.render('artist-submit-form', { data: data });
-        }
-    });
+            }
+        });
+    }
+    else {
+        data.addWarningMsg('Error: Name ' + artist + ' contains forbidden characters or has wrong format!');
+        res.render('artist-submit-form', { data: data });
+    }
 });
 //NEW ALBUM FORM
 /**
  * Form for new album submition
  */
 app.get('/new/album', function (req, res) {
-    getJSON('http://localhost:2000/data/albums', function (err, items) {
-        var data = new AlbumListData_1.AlbumListData("New album", undefined, undefined, undefined, "Add new album", items);
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.render('album-submit-form', { data: data });
-        }
-    });
+    var data = new TemplateData_1.TemplateData("New album", undefined, undefined, undefined, "Add new album");
+    res.render('album-submit-form', { data: data });
 });
 /**
  * Submitted form data handle
  */
 app.post('/new/album', function (req, res) {
-    var data = new AlbumListData_1.AlbumListData("New album", undefined, undefined, undefined, "Add new album", []);
-    //TODO Overenie ci existuje dany artist
-    //Overenie ci zadana hodnota uz existuje
-    db.query('SELECT * FROM albums ' +
-        'WHERE album_name = ?', [req.body.album_name], function (db_err, db_res) {
-        //AK NEEXISTUJE, ZAPIS JU DO DB
-        if (db_res[0] == null) {
-            db.query("INSERT INTO albums (album_name, album_year) VALUES (?, ?)", [req.body.album_name, req.body.album_year], function (db_err2, db_res_2) {
-                if (db_err2) {
-                    console.log(db_err2);
-                }
-                else {
-                    data.addSuccessMsg('Album ' + req.body.album_name + ' added successfully');
-                }
+    var data = new TemplateData_1.TemplateData("New album", undefined, undefined, undefined, "Add new album");
+    var artist_name = req.body.artist_name.trim();
+    //ARTIST VALIDATION
+    db.query('SELECT artist_id FROM artists ' +
+        'WHERE artist_name = ?', [artist_name], function (db_err, db_res) {
+        //IF ARTIST EXISTS
+        if (db_res[0] != null) {
+            var artist_id_1 = db_res[0].artist_id;
+            var album_name_1 = req.body.album_name.trim();
+            var album_year_1 = parseInt(req.body.album_year);
+            //ALBUM INPUT VALIDATION
+            if (album_name_1.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+                album_year_1 > 1800 && album_year_1 <= new Date().getFullYear()) {
+                db.query('SELECT * FROM albums ' +
+                    'WHERE album_name = ?', [album_name_1], function (db_err, db_res) {
+                    //AK NEEXISTUJE ROVNAKY ALBUM ZAPIS HO DB
+                    if (db_res[0] == null) {
+                        var q_1 = db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)", [album_name_1, album_year_1, artist_id_1], function (db_err2, db_res_2) {
+                            console.log(q_1.sql);
+                            if (db_err2) {
+                                data.addWarningMsg('Error: ' + db_err2);
+                            }
+                            else {
+                                data.addSuccessMsg('Album ' + album_name_1 + ' (' + album_year_1 + ') added successfully');
+                            }
+                            res.render('album-submit-form', { data: data });
+                        });
+                        //AK EXISTUJE
+                    }
+                    else {
+                        data.addWarningMsg('Error: Album ' + album_name_1 + ' already exists!');
+                        res.render('album-submit-form', { data: data });
+                    }
+                });
+            }
+            else {
+                data.addWarningMsg('Error: Values contain forbidden characters or have wrong format!');
                 res.render('album-submit-form', { data: data });
-            });
-            //AK EXISTUJE
+            }
         }
         else {
-            data.addWarningMsg('Error: album ' + req.body.album_name + ' already exists');
+            data.addWarningMsg('Error: Unknown artist!');
             res.render('album-submit-form', { data: data });
         }
     });
@@ -226,6 +240,10 @@ app.post('/new/song', function (req, res) {
         }
     });*/
 });
+//AUDIO PLAYER TEST
+app.get('/player', function (req, res) {
+    res.render('audio-player-test', {});
+});
 //########################### APIs ###########################
 /**
  * Favourite song list
@@ -248,6 +266,34 @@ app.get('/data/favourites', function (req, res) {
         else {
             res.json(songData);
         }
+    });
+});
+/**
+ * Search for items which contains certain string in table artists
+ *
+ * Returns ArtistData[] JSON
+ */
+app.get('/data/artists/contains/:string', function (req, res) {
+    db.query("SELECT artist_id AS artist_id, " +
+        "artist_name AS artist_name " +
+        "FROM artists WHERE artist_name LIKE ?", '%' + [req.params.string] + '%', function (err, rows) {
+        if (err)
+            res.json(err);
+        res.json(rows);
+    });
+});
+/**
+ * Search for items which starts with certain string in table artists
+ *
+ * Returns ArtistData[] JSON
+ */
+app.get('/data/artists/search/:string', function (req, res) {
+    db.query("SELECT artist_id AS artist_id, " +
+        "artist_name AS artist_name " +
+        "FROM artists WHERE artist_name LIKE ?", [req.params.string] + '%', function (err, rows) {
+        if (err)
+            res.json(err);
+        res.json(rows);
     });
 });
 /**
@@ -308,38 +354,50 @@ app.get('/data/artist/:id/albums', function (req, res) {
 //TODO dorobit songs_count a albums_count
 /**
  * Info about certain artist
+ * IF param 'id' is number  -> info about artist with certain 'artist_id'
+ * IF param 'id' is text    -> info about artist with certain 'artist_name'
  *
  * Returns ArtistData JSON
  */
 app.get('/data/artist/:id', function (req, res) {
     var artistData = new ArtistListData_1.ArtistData();
-    //Vytiahne z DB meno a pocet songov
-    db.query("SELECT artists.artist_id AS artist_id, " +
-        "artists.artist_name AS artist_name, " +
-        "COUNT(*) AS songs_count " +
-        "FROM artists INNER JOIN songs ON artists.artist_id = songs.artist_id " +
-        "WHERE artists.artist_id = ?", [req.params.id], function (db_err, db_res) {
-        if (db_err) {
-            res.json(db_err);
-        }
-        else {
-            artistData.artist_id = db_res[0].artist_id;
-            artistData.artist_name = db_res[0].artist_name;
-            //artistData.songs_count = db_res[0].songs_count;
-            //Vytiahne z DB pocet albumov
-            db.query("SELECT COUNT(*) AS albums_count FROM artists " +
-                "INNER JOIN albums ON artists.artist_id = albums.artist_id " +
-                "WHERE artists.artist_id = ?", [req.params.id], function (db_err2, db_res2) {
-                if (db_err2) {
-                    res.json(db_err2);
-                }
-                else {
-                    //artistData.albums_count = db_res2[0].albums_count;
-                    res.json(artistData);
-                }
-            });
-        }
-    });
+    var param = req.params.id;
+    //SEARCH ARTIST BY NAME
+    if (isNaN(param)) {
+        var artist_name = param.trim(); //decodes uri
+        //Vytiahne z DB meno a pocet songov
+        db.query("SELECT artists.artist_id AS artist_id, " +
+            "artists.artist_name AS artist_name " +
+            "FROM artists " +
+            "WHERE artists.artist_name LIKE ?", [artist_name], function (db_err, db_res) {
+            if (db_err) {
+                res.json(db_err);
+            }
+            else {
+                artistData.artist_id = db_res[0].artist_id;
+                artistData.artist_name = db_res[0].artist_name;
+                res.json(artistData);
+            }
+        });
+        //SEARCH ARTIST BY ID
+    }
+    else {
+        var artist_id = parseInt(param);
+        //Vytiahne z DB meno a pocet songov
+        db.query("SELECT artists.artist_id AS artist_id, " +
+            "artists.artist_name AS artist_name " +
+            "FROM artists " +
+            "WHERE artists.artist_id = ?", [artist_id], function (db_err, db_res) {
+            if (db_err) {
+                res.json(db_err);
+            }
+            else {
+                artistData.artist_id = db_res[0].artist_id;
+                artistData.artist_name = db_res[0].artist_name;
+                res.json(artistData);
+            }
+        });
+    }
 });
 /**
  * List of albums

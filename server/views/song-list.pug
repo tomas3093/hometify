@@ -4,14 +4,19 @@ block append css
     link(rel="stylesheet" type="text/css" href="/client/css/song-list.css")
 
 block append content
-    div(class="item-list-box")
+    ul(class="song-list")
         each item in locals.data.items
-            div(class="item-box")
+            li(class="song")
                 div(class="img-box")
-                    img(src="/client/img/albums/" + item.album_id + ".png"
-                        onerror="this.src='/client/img/albums/default.png'"
+                    img(src="/client/img/default-note.svg"
                         alt=item.album_name width="50" height="50")
 
-                div(class="content-box")
-                    div(class="content-box-dsc"): a(href="")=item.artist_name
-                    div(class="content-box-name"): a(href="")=item.track_name
+                div(class="info-box")
+                    p
+                        strong
+                            a(href="#")=item.artist_name
+                    p
+                        a(href="#")=item.track_name
+                    p
+                        a(href="#") BLA
+                    p 00:00
