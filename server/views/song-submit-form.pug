@@ -11,7 +11,3 @@ block append content
         input(id="song-file-upload" name="uploaded_file" type="file")
 
         input(id="submit-btn" type="submit" value="Submit")
-
-    each item in locals.data.items
-        ul
-            li=item.artist_name + " - " + item.track_name

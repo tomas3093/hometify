@@ -1,5 +1,5 @@
 /**
- * Class representing data structure for templates
+ * Class representing data structure for default template
  */
 export class TemplateData {
 

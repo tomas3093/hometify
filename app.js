@@ -7,7 +7,7 @@ var express = require('express');
 var getJSON = require('get-json');
 var bodyParser = require('body-parser');
 var formidable = require('formidable');
-var fs = require('fs');
+var fs = require('fs-extra');
 var util = require('util');
 var app = express();
 var serv = require('http').Server(app);
@@ -175,43 +175,58 @@ app.post('/new/album', function (req, res) {
  * Form for new song submition
  */
 app.get('/new/song', function (req, res) {
-    getJSON('http://localhost:2000/data/favourites', function (err, items) {
-        var data = new SongListData_1.SongListData("New song", undefined, undefined, undefined, "Add new song", items);
-        if (err) {
-            res.json(err);
-        }
-        else {
-            res.render('song-submit-form', { data: data });
-        }
-    });
+    var data = new TemplateData_1.TemplateData("New song upload", undefined, undefined, undefined, "Add new song upload");
+    res.render('song-submit-form', { data: data });
 });
 /**
  * Submitted form data handle
  */
 app.post('/new/song', function (req, res) {
     var data = new TemplateData_1.TemplateData("New song upload", undefined, undefined, undefined, "New song upload");
-    var form = new formidable.IncomingForm();
-    form.parse(req, function (err, fields, files) {
-        var oldPath = files.uploaded_file.path;
-        var newPath = __dirname + '/server/data/songs/' + files.uploaded_file.name;
-        fs.readFile(oldPath, function (err, data) {
-            if (err)
-                throw err;
-            console.log('file read!');
-            //Write file
-            fs.writeFile(newPath, data, function (err) {
-                if (err)
-                    throw err;
-                res.send('File uploaded and moved!');
-                res.end();
+    var incomingForm = new formidable.IncomingForm();
+    //SPRACOVANIE FORMULARA
+    incomingForm.parse(req, function (err, fields, files) {
+        var track_name = fields.track_name.trim();
+        var artist_name = fields.artist_name.trim();
+        var album_name = fields.album_name.trim();
+        //NIE SU PRAZDNE POLIA
+        if (track_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+            artist_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+            album_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$")) {
+            //Zistenie artist_id
+            getJSON('http://localhost:2000/data/artist/' + artist_name, function (db_err2, artistData) {
+                if (artistData.length > 0) {
+                    var artist_id_2 = artistData[0].artist_id;
+                    //SPRACOVANIE SUBORU
+                    var file_name = files.uploaded_file.name; //The file name of the uploaded file
+                    var temp_path = files.uploaded_file.path; //Temporary location of the uploaded file
+                    var new_location = __dirname + '/client/src/songs/'; //Location where we want to copy the uploaded file
+                    //COPY FILE TO NEW LOCATION
+                    fs.copy(temp_path, new_location + file_name, function (err) {
+                        if (err) {
+                            data.addWarningMsg('Error: ' + err);
+                            res.render('song-submit-form', { data: data });
+                        }
+                        else {
+                            data.addSuccessMsg('File has been successfully uploaded');
+                            //TODO INSERT INTO DB
+                            console.log('Insert into db: ' + track_name + ' ' + artist_name + ' ' + artist_id_2 + ' ' + album_name);
+                            res.render('song-submit-form', { data: data });
+                        }
+                    });
+                }
+                else {
+                    data.addWarningMsg('Error: Unknow artist');
+                    res.render('song-submit-form', { data: data });
+                }
             });
-            fs.unlink(oldPath, function (err) {
-                if (err)
-                    throw err;
-                console.log('Tmp file deleted!');
-            });
-        });
+        }
+        else {
+            data.addWarningMsg('Error: Empty fields!');
+            res.render('song-submit-form', { data: data });
+        }
     });
+    //TODO Pridat spravne pomenovanie noveho suboru a konverziu na alternativny format
     /*
     //Overenie ci zadana hodnota uz existuje
     db.query('SELECT * FROM songs ' +
@@ -374,8 +389,10 @@ app.get('/data/artist/:id', function (req, res) {
                 res.json(db_err);
             }
             else {
-                artistData.artist_id = db_res[0].artist_id;
-                artistData.artist_name = db_res[0].artist_name;
+                if (db_res.length > 0) {
+                    artistData.artist_id = db_res[0].artist_id;
+                    artistData.artist_name = db_res[0].artist_name;
+                }
                 res.json(artistData);
             }
         });

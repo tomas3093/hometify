@@ -10,7 +10,7 @@ const express = require('express');
 const getJSON = require('get-json');
 const bodyParser = require('body-parser');
 const formidable = require('formidable');
-const fs = require('fs');
+const fs = require('fs-extra');
 const util = require('util');
 
 const app = express();
@@ -146,7 +146,7 @@ app.post('/new/artist', function (req, res) {
                         }
 
                         res.render('artist-submit-form', { data: data });
-                });
+                    });
 
                 //AK EXISTUJE
             } else {
@@ -211,7 +211,7 @@ app.post('/new/album', function (req, res) {
                         let q = db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)",
                             [album_name, album_year, artist_id], function (db_err2, db_res_2) {
 
-                            console.log(q.sql);
+                                console.log(q.sql);
 
                                 if (db_err2) {
                                     data.addWarningMsg('Error: ' + db_err2);
@@ -251,17 +251,10 @@ app.post('/new/album', function (req, res) {
  */
 app.get('/new/song', function (req, res) {
 
-    getJSON('http://localhost:2000/data/favourites', function (err, items: SongData[]) {
+    let data: TemplateData = new TemplateData("New song upload", undefined,
+        undefined, undefined, "Add new song upload");
 
-        let data: SongListData = new SongListData("New song", undefined,
-            undefined, undefined, "Add new song", items);
-
-        if (err) {
-            res.json(err);
-        } else {
-            res.render('song-submit-form', { data: data });
-        }
-    });
+    res.render('song-submit-form', { data: data });
 });
 
 /**
@@ -272,33 +265,65 @@ app.post('/new/song', function (req, res) {
     let data: TemplateData = new TemplateData("New song upload",
         undefined, undefined, undefined, "New song upload");
 
-    let form = new formidable.IncomingForm();
+    let incomingForm = new formidable.IncomingForm();
 
-    form.parse(req, function (err, fields, files) {
+    //SPRACOVANIE FORMULARA
+    incomingForm.parse(req, function (err, fields, files) {
 
-        let oldPath = files.uploaded_file.path;
-        let newPath = __dirname + '/server/data/songs/' + files.uploaded_file.name;
+        let track_name: string = fields.track_name.trim();
+        let artist_name: string = fields.artist_name.trim();
+        let album_name: string = fields.album_name.trim();
 
-        fs.readFile(oldPath, function (err, data) {
-            if (err) throw err;
+        //NIE SU PRAZDNE POLIA
+        if (track_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+            artist_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+            album_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$")) {
 
-            console.log('file read!');
+            //Zistenie artist_id
+            getJSON('http://localhost:2000/data/artist/' + artist_name, function (db_err2, artistData: ArtistData[]) {
 
-            //Write file
-            fs.writeFile(newPath, data, function (err) {
-                if (err) throw err;
+                if (artistData.length > 0) {
 
-                res.send('File uploaded and moved!');
-                res.end();
+                    let artist_id = artistData[0].artist_id;
+
+                    //SPRACOVANIE SUBORU
+                    const file_name = files.uploaded_file.name;               //The file name of the uploaded file
+                    const temp_path = files.uploaded_file.path;               //Temporary location of the uploaded file
+                    const new_location = __dirname + '/client/src/songs/';    //Location where we want to copy the uploaded file
+
+                    //COPY FILE TO NEW LOCATION
+                    fs.copy(temp_path, new_location + file_name, function(err) {
+                        if (err) {
+                            data.addWarningMsg('Error: ' + err);
+
+                            res.render('song-submit-form', { data: data });
+                        } else {
+                            data.addSuccessMsg('File has been successfully uploaded');
+
+                            //TODO INSERT INTO DB
+
+                            console.log('Insert into db: ' + track_name + ' ' + artist_name + ' ' + artist_id + ' ' + album_name);
+
+                            res.render('song-submit-form', { data: data });
+                        }
+                    });
+
+                } else {
+                    data.addWarningMsg('Error: Unknow artist');
+
+                    res.render('song-submit-form', { data: data });
+                }
             });
 
-            fs.unlink(oldPath, function (err) {
-                if (err) throw err;
+        } else {
+            data.addWarningMsg('Error: Empty fields!');
 
-                console.log('Tmp file deleted!');
-            })
-        });
+            res.render('song-submit-form', { data: data });
+        }
     });
+
+
+    //TODO Pridat spravne pomenovanie noveho suboru a konverziu na alternativny format
 
     /*
     //Overenie ci zadana hodnota uz existuje
@@ -346,21 +371,21 @@ app.get('/player', function (req, res) {
  */
 app.get('/data/favourites', function (req, res) {
     db.query(   "SELECT songs.song_id AS song_id, " +
-                "artists.artist_id AS artist_id, " +
-                "songs.album_id AS album_id, " +
-                "songs.track AS track_name, " +
-                "artists.artist_name AS artist_name, " +
-                "albums.album_name AS album_name " +
-                "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
-                "INNER JOIN albums ON songs.album_id = albums.album_id)",
-            function (err, songData:SongData[]) {
+        "artists.artist_id AS artist_id, " +
+        "songs.album_id AS album_id, " +
+        "songs.track AS track_name, " +
+        "artists.artist_name AS artist_name, " +
+        "albums.album_name AS album_name " +
+        "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
+        "INNER JOIN albums ON songs.album_id = albums.album_id)",
+        function (err, songData:SongData[]) {
 
-        if (err) {
-            res.json(err);
-        } else {
-            res.json(songData);
-        }
-    });
+            if (err) {
+                res.json(err);
+            } else {
+                res.json(songData);
+            }
+        });
 });
 
 /**
@@ -370,13 +395,13 @@ app.get('/data/favourites', function (req, res) {
  */
 app.get('/data/artists/contains/:string', function (req, res) {
     db.query(   "SELECT artist_id AS artist_id, " +
-                "artist_name AS artist_name " +
-                "FROM artists WHERE artist_name LIKE ?",
-                '%' + [req.params.string] + '%', function (err, rows: ArtistData[]) {
+        "artist_name AS artist_name " +
+        "FROM artists WHERE artist_name LIKE ?",
+        '%' + [req.params.string] + '%', function (err, rows: ArtistData[]) {
 
-        if (err) res.json(err);
-        res.json(rows);
-    });
+            if (err) res.json(err);
+            res.json(rows);
+        });
 });
 
 /**
@@ -386,12 +411,12 @@ app.get('/data/artists/contains/:string', function (req, res) {
  */
 app.get('/data/artists/search/:string', function (req, res) {
     db.query(   "SELECT artist_id AS artist_id, " +
-                "artist_name AS artist_name " +
-                "FROM artists WHERE artist_name LIKE ?",
-                [req.params.string] + '%', function (err, rows: ArtistData[]) {
+        "artist_name AS artist_name " +
+        "FROM artists WHERE artist_name LIKE ?",
+        [req.params.string] + '%', function (err, rows: ArtistData[]) {
 
-        if (err) res.json(err);
-        res.json(rows);
+            if (err) res.json(err);
+            res.json(rows);
         });
 });
 
@@ -403,8 +428,8 @@ app.get('/data/artists/search/:string', function (req, res) {
 app.get('/data/artists', function (req, res) {
 
     db.query(   "SELECT artist_id AS artist_id, " +
-                "artist_name AS artist_name " +
-                "FROM artists", function (err, rows: ArtistData[]) {
+        "artist_name AS artist_name " +
+        "FROM artists", function (err, rows: ArtistData[]) {
 
         if (err) res.json(err);
         res.json(rows);
@@ -418,22 +443,22 @@ app.get('/data/artists', function (req, res) {
  */
 app.get('/data/artist/:id/songs', function (req, res) {
     db.query(   "SELECT songs.song_id AS song_id, " +
-                "artists.artist_id AS artist_id, " +
-                "songs.album_id AS album_id, " +
-                "songs.track AS track_name, " +
-                "artists.artist_name AS artist_name, " +
-                "albums.album_name AS album_name " +
-                "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
-                "INNER JOIN albums ON songs.album_id = albums.album_id) " +
-                "WHERE artists.artist_id = ?",
-            [req.params.id], function (err, songData:SongData[]) {
+        "artists.artist_id AS artist_id, " +
+        "songs.album_id AS album_id, " +
+        "songs.track AS track_name, " +
+        "artists.artist_name AS artist_name, " +
+        "albums.album_name AS album_name " +
+        "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
+        "INNER JOIN albums ON songs.album_id = albums.album_id) " +
+        "WHERE artists.artist_id = ?",
+        [req.params.id], function (err, songData:SongData[]) {
 
             if (err) {
                 res.json(err);
             } else {
                 res.json(songData);
             }
-    });
+        });
 });
 
 /**
@@ -443,12 +468,12 @@ app.get('/data/artist/:id/songs', function (req, res) {
  */
 app.get('/data/artist/:id/albums', function (req, res) {
     db.query(   "SELECT albums.album_id AS album_id, " +
-                "albums.album_name AS album_name, " +
-                "albums.album_year AS album_year, " +
-                "COUNT(*) AS songs_count, " +
-                "songs.artist_id AS artist_id " +
-                "FROM albums INNER JOIN songs ON albums.album_id = songs.album_id " +
-                "WHERE songs.artist_id = ? GROUP BY albums.album_id", [req.params.id], function (err, rows: AlbumData[]) {
+        "albums.album_name AS album_name, " +
+        "albums.album_year AS album_year, " +
+        "COUNT(*) AS songs_count, " +
+        "songs.artist_id AS artist_id " +
+        "FROM albums INNER JOIN songs ON albums.album_id = songs.album_id " +
+        "WHERE songs.artist_id = ? GROUP BY albums.album_id", [req.params.id], function (err, rows: AlbumData[]) {
 
         if (err) res.json(err);
         res.json(rows);
@@ -483,8 +508,10 @@ app.get('/data/artist/:id', function (req, res) {
                 res.json(db_err);
             } else {
 
-                artistData.artist_id = db_res[0].artist_id;
-                artistData.artist_name = db_res[0].artist_name;
+                if (db_res.length > 0) {
+                    artistData.artist_id = db_res[0].artist_id;
+                    artistData.artist_name = db_res[0].artist_name;
+                }
 
                 res.json(artistData);
             }
@@ -522,11 +549,11 @@ app.get('/data/artist/:id', function (req, res) {
 app.get('/data/albums', function (req, res) {
     //songs_count not implemented
     db.query(   "SELECT albums.album_id AS album_id, " +
-                "albums.album_name AS album_name, " +
-                "albums.album_year AS album_year, " +
-                "-1 AS songs_count," +
-                "albums.artist_id AS artist_id " +
-                "FROM albums", function (err, rows) {
+        "albums.album_name AS album_name, " +
+        "albums.album_year AS album_year, " +
+        "-1 AS songs_count," +
+        "albums.artist_id AS artist_id " +
+        "FROM albums", function (err, rows) {
 
         if (err) res.json(err);
         res.json(rows);
@@ -540,14 +567,14 @@ app.get('/data/albums', function (req, res) {
  */
 app.get('/data/album/:id/songs', function (req, res) {
     db.query(   "SELECT songs.song_id AS song_id, " +
-                "artists.artist_id AS artist_id, " +
-                "songs.album_id AS album_id, " +
-                "songs.track AS track_name, " +
-                "artists.artist_name AS artist_name, " +
-                "albums.album_name AS album_name " +
-                "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
-                "INNER JOIN albums ON songs.album_id = albums.album_id) " +
-                "WHERE songs.album_id = ?",
+        "artists.artist_id AS artist_id, " +
+        "songs.album_id AS album_id, " +
+        "songs.track AS track_name, " +
+        "artists.artist_name AS artist_name, " +
+        "albums.album_name AS album_name " +
+        "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
+        "INNER JOIN albums ON songs.album_id = albums.album_id) " +
+        "WHERE songs.album_id = ?",
         [req.params.id], function (err, songData:SongData[]) {
 
             if (err) {

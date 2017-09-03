@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Class representing data structure for templates
+ * Class representing data structure for default template
  */
 var TemplateData = (function () {
     /**

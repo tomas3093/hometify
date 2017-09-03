@@ -8,7 +8,8 @@ block append content
         each item in locals.data.items
             li(class="song")
                 div(class="img-box")
-                    img(src="/client/img/default-note.svg"
+                    img(src="/client/img/albums/" + item.album_id + ".svg"
+                        onerror="this.src='/client/img/flaticon/note.svg'"
                         alt=item.album_name width="50" height="50")
 
                 div(class="info-box")
@@ -18,5 +19,12 @@ block append content
                     p
                         a(href="#")=item.track_name
                     p
-                        a(href="#") BLA
+                        a(href="#")
+                            img(src="/client/img/flaticon/play.svg" width="25" height="25")
+                    p
+                        a(href="#")
+                            img(src="/client/img/flaticon/bold-star.svg" width="25" height="25")
+                    p
+                        a(href="#")
+                            img(src="/client/img/flaticon/more.svg" width="25" height="25")
                     p 00:00
