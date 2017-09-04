@@ -2,8 +2,8 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="808eb158-7e50-4249-8ee8-996fdb169d66" name="RaspberryPi Local Server" url="http://192.168.1.5">
-        <fileTransfer host="192.168.1.5" port="22" rootFolder="/home/pi/www/hometify" accessType="SFTP">
+      <webServer id="808eb158-7e50-4249-8ee8-996fdb169d66" name="RaspberryPi Local Server" url="http://tomas3093.ddns.net">
+        <fileTransfer host="tomas3093.ddns.net" port="22" rootFolder="/home/pi/www/hometify" accessType="SFTP">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" />
           </advancedOptions>
