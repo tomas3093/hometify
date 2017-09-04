@@ -1,4 +1,5 @@
-//Default website layout
+//Main website layout
+doctype html
 
 html
     head
@@ -7,16 +8,17 @@ html
 
         title=locals.data.title
 
+        //CSS Files
         block css
             link(rel="stylesheet" type="text/css" href="/client/css/default-layout.css")
 
+        //JS Files
         block scripts
             script(src="/client/js/jquery-3.2.1.min.js")
 
     body
-
+        //Header of website
         block header
-
             header
                 h1 Hometify
 
@@ -32,9 +34,13 @@ html
             div(class="heading")
                 p=locals.data.heading
 
-
+        //Main content of website
         block content
 
+        //Audio player feature
+        block player
+
+        //Footer of website
         block footer
             footer
                 script.

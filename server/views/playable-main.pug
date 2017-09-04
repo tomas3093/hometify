@@ -1,0 +1,27 @@
+extends main
+
+block append css
+    link(rel="stylesheet" type="text/css" href="/client/css/audio-player.css")
+
+block append scripts
+    script(src='/client/js/prefixfree-1.0.7.min.js')
+    script(src='/client/js/html5media-1.1.8.min.js')
+    script(src='/client/js/audio-player.js')
+
+block player
+    div(class="container")
+        div(class="column add-bottom")
+            div(id="mainwrap")
+                div(id="nowPlay")
+                    span(id="npAction" class="left") Paused...
+                    span(id="npTitle" class="right")
+                div(id="audiowrap")
+                    div(id="audio0")
+                        audio(id="audio1" preload='', controls='') Your browser does not support HTML5 Audio!
+                    div(id="tracks")
+                        a(id="btnPrev") «
+                        a(id="btnNext") »
+                div(id="plwrap")
+                    ul(id="plList")
+
+        div(class="column add-bottom center")

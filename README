@@ -1,3 +1,14 @@
-Zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
+INFO:
+    Zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
+    Spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside
 
-Spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside
+    Aktualna hierarchia sablon:
+        main    -> playable-main    -> song-list
+                                    -> artist-list ... etc.
+
+Changelog:
+    04.09.2017 11:07
+        + Premenovanie default sablony 'default-layout.pug' -> 'main.pug'
+        + Pridany block 'player' do main sablony
+        + Vytvorena nova sablona playable-main.pug, ktora rozsiruje main sablonu o block 'player'
+        + Dokumentacia
