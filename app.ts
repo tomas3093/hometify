@@ -208,19 +208,17 @@ app.post('/new/album', function (req, res) {
                     //AK NEEXISTUJE ROVNAKY ALBUM ZAPIS HO DB
                     if (db_res[0] == null) {
 
-                        let q = db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)",
-                            [album_name, album_year, artist_id], function (db_err2, db_res_2) {
+                        db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)",
+                                [album_name, album_year, artist_id], function (db_err2, db_res_2) {
 
-                                console.log(q.sql);
+                            if (db_err2) {
+                                data.addWarningMsg('Error: ' + db_err2);
+                            } else {
+                                data.addSuccessMsg('Album ' + album_name + ' (' + album_year + ') added successfully');
+                            }
 
-                                if (db_err2) {
-                                    data.addWarningMsg('Error: ' + db_err2);
-                                } else {
-                                    data.addSuccessMsg('Album ' + album_name + ' (' + album_year + ') added successfully');
-                                }
-
-                                res.render('album-submit-form', { data: data });
-                            });
+                            res.render('album-submit-form', { data: data });
+                        });
 
                         //AK EXISTUJE
                     } else {
@@ -262,7 +260,9 @@ app.get('/new/song', function (req, res) {
  */
 app.post('/new/song', function (req, res) {
 
-    let data: TemplateData = new TemplateData("New song upload",
+    //TODO Refactornut tento spaghetti kod (rozdelit na viac funkcii)
+
+    /*let data: TemplateData = new TemplateData("New song upload",
         undefined, undefined, undefined, "New song upload");
 
     let incomingForm = new formidable.IncomingForm();
@@ -270,12 +270,14 @@ app.post('/new/song', function (req, res) {
     //SPRACOVANIE FORMULARA
     incomingForm.parse(req, function (err, fields, files) {
 
-        let track_name: string = fields.track_name.trim();
+        let artist_id: number;
+        let album_id: number = 0;
+        let track: string = fields.track_name.trim();
         let artist_name: string = fields.artist_name.trim();
         let album_name: string = fields.album_name.trim();
 
         //NIE SU PRAZDNE POLIA
-        if (track_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+        if (track.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
             artist_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
             album_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$")) {
 
@@ -284,7 +286,7 @@ app.post('/new/song', function (req, res) {
 
                 if (artistData.length > 0) {
 
-                    let artist_id = artistData[0].artist_id;
+                    artist_id = artistData[0].artist_id;
 
                     //SPRACOVANIE SUBORU
                     const file_name = files.uploaded_file.name;               //The file name of the uploaded file
@@ -300,9 +302,20 @@ app.post('/new/song', function (req, res) {
                         } else {
                             data.addSuccessMsg('File has been successfully uploaded');
 
-                            //TODO INSERT INTO DB
+                            //TODO album_id je vzdy '0'
+                            db.query("INSERT INTO songs (artist_id, track, album_id) VALUES (?, ?, ?)",
+                                    [artist_id, track, 0], function (db_err2, db_res_2) {
 
-                            console.log('Insert into db: ' + track_name + ' ' + artist_name + ' ' + artist_id + ' ' + album_name);
+                                if (db_err2) {
+                                    data.addWarningMsg('Error: ' + db_err2);
+                                } else {
+                                    data.addSuccessMsg('Song ' + track + ' added successfully');
+                                }
+
+                                res.render('album-submit-form', { data: data });
+                            });
+
+                            console.log('Insert into db: ' + track + ' ' + artist_name + ' ' + artist_id + ' ' + album_name);
 
                             res.render('song-submit-form', { data: data });
                         }
@@ -317,37 +330,6 @@ app.post('/new/song', function (req, res) {
 
         } else {
             data.addWarningMsg('Error: Empty fields!');
-
-            res.render('song-submit-form', { data: data });
-        }
-    });
-
-
-    //TODO Pridat spravne pomenovanie noveho suboru a konverziu na alternativny format
-
-    /*
-    //Overenie ci zadana hodnota uz existuje
-    db.query('SELECT * FROM songs ' +
-        'WHERE track_name = ?', [req.body.track_name], function (db_err, db_res) {
-
-        //AK NEEXISTUJE, ZAPIS JU DO DB
-        if (db_res[0] == null) {
-
-            db.query("INSERT INTO songs (track_name) VALUES (?)", req.body.artist_name,
-                function (db_err2, db_res_2) {
-
-                    if (db_err2) {
-                        console.log(db_err2);
-                    } else {
-                        data.addSuccessMsg('Song ' + req.body.track_name + ' added successfully');
-                    }
-
-                    res.render('song-submit-form', { data: data });
-                });
-
-            //AK EXISTUJE
-        } else {
-            data.addWarningMsg('Error: artist ' + req.body.track_name + ' already exists');
 
             res.render('song-submit-form', { data: data });
         }
