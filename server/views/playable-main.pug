@@ -3,7 +3,7 @@ extends main
 //-
     Main template with audio player
 
-block prepend css
+block append css
     link(rel="stylesheet" type="text/css" href="/client/css/playable-main.css")
 
 block append scripts
@@ -15,12 +15,12 @@ block append content
     ul(id="plList")
 
 block player
-    div(class="container")
+    div(class="container" id="player")
         div(class="column add-bottom")
             div(id="mainwrap")
                 div(id="nowPlay")
-                    span(id="npAction" class="left") Paused...
-                    span(id="npTitle" class="right")
+                    span(id="npAction") Paused...
+                    span(id="npTitle")
                 div(id="audiowrap")
                     div(id="audio0")
                         audio(id="audio1" preload='', controls='') Your browser does not support HTML5 Audio!
