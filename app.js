@@ -33,10 +33,8 @@ var db = mysql.createConnection({
  * Favourite songs
  */
 app.get('/', function (req, res) {
-    getJSON('http://localhost:2000/data/favourites', function (db_err, items) {
-        var songListData = new SongListData_1.SongListData("Hometify - Your home music streaming", undefined, undefined, undefined, "Most played songs", items);
-        res.render('song-list', { data: songListData });
-    });
+    var templateData = new TemplateData_1.TemplateData("Hometify - Your home music streaming", undefined, undefined, undefined, "Most played songs");
+    res.render('playable-main', { data: templateData });
 });
 /**
  * All artists

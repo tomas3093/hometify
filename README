@@ -15,6 +15,7 @@ CHANGELOG:
         + main.pug -> do blocku 'content' pridany div(id="content"), ktory sa bude naplnat dynamicky cez AJAX
         + refactor - rename 'default-layout.css' -> 'main.css'
         + upravena struktura priecinkov v /client/js
+        + rozpracovany playlist
 
     05.09.2017 23:28
         - Zablokovanie formularov (treba ich refaktorovat)

@@ -45,13 +45,10 @@ const db = mysql.createConnection({
  */
 app.get('/', function (req, res) {
 
-    getJSON('http://localhost:2000/data/favourites', function (db_err, items:SongData[]) {
+    let templateData: TemplateData = new TemplateData("Hometify - Your home music streaming",
+        undefined, undefined, undefined, "Most played songs");
 
-        let songListData: SongListData = new SongListData("Hometify - Your home music streaming",
-            undefined, undefined, undefined, "Most played songs", items);
-
-        res.render('song-list', { data: songListData });
-    });
+    res.render('playable-main', { data: templateData });
 });
 
 /**

@@ -1,34 +1,13 @@
-// html5media enables <video> and <audio> tags in all major browsers
-// External File: https://api.html5media.info/1.1.8/html5media.min.js
+/**
+ * html5media enables <video> and <audio> tags in all major browsers
+ * External File: https://api.html5media.info/1.1.8/html5media.min.js
+ */
 var debug = true;
 var extension;
 var mediaPath = debug ? 'https://archive.org/download/hometify2017-09-01/' : 'http://192.168.1.5:2000/client/src/songs/';
 // Add user agent as an attribute on the <html> tag
 document.documentElement.setAttribute('data-useragent', navigator.userAgent);
 document.documentElement.setAttribute('data-platform', navigator.platform);
-/**
- * Track info container
- */
-var Track = (function () {
-    function Track(track_id, track_name, track_artist, track_length) {
-        this.track_id = track_id;
-        this.track_name = track_name;
-        this.track_artist = track_artist;
-        this.track_length = track_length;
-    }
-    return Track;
-}());
-/**
- * AudioPlayer container
- */
-var AudioPlayer = (function () {
-    function AudioPlayer() {
-        this.track_id = 0;
-        this.playing = false;
-        this.tracks = [];
-    }
-    return AudioPlayer;
-}());
 jQuery(function ($) {
     var a = document.createElement('audio');
     var supportsMp3 = !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
@@ -68,18 +47,20 @@ jQuery(function ($) {
         loadTrack(track_id);
         audio.play();
     };
-    var buildPlaylist = $.each(audioPlayer.tracks, function (key, value) {
-        var trackNumber = '' + value.track_id;
-        var trackName = value.track_name;
-        var trackLength = value.track_length;
-        if (trackNumber.toString().length === 1) {
-            trackNumber = '0' + trackNumber;
-        }
-        else {
-            trackNumber = '' + trackNumber;
-        }
-        $('#plList').append('<li><div class="plItem"><div class="plNum">' + trackNumber + '.</div><div class="plTitle">' + trackName + '</div><div class="plLength">' + trackLength + '</div></div></li>');
-    });
+    var buildPlaylist = function () {
+        $.each(audioPlayer.tracks, function (key, value) {
+            var trackNumber = '' + value.track_id;
+            var trackName = value.track_name;
+            var trackLength = value.track_length;
+            if (trackNumber.toString().length === 1) {
+                trackNumber = '0' + trackNumber;
+            }
+            else {
+                trackNumber = '' + trackNumber;
+            }
+            $('#plList').append('<li><div class="plItem"><div class="plNum">' + trackNumber + '.</div><div class="plTitle">' + trackName + '</div><div class="plLength">' + trackLength + '</div></div></li>');
+        });
+    };
     /**
      * Previous button click
      * @type {any | void}
@@ -130,4 +111,32 @@ jQuery(function ($) {
     });
     loadTrack(audioPlayer.track_id);
 });
+/**
+ * AudioPlayer container
+ */
+var AudioPlayer = (function () {
+    function AudioPlayer() {
+        this.addTrackToPlaylist = function (track) {
+            this.tracks.push(track);
+        };
+        this.track_id = 0;
+        this.playing = false;
+        this.tracks = [new Track(1, "skladba 1", "artist xyz", "2:22"),
+            new Track(2, "skladba 2", "artist xyz", "2:22"),
+            new Track(3, "skladba 3", "artist xyz", "2:22")];
+    }
+    return AudioPlayer;
+}());
+/**
+ * Track info container
+ */
+var Track = (function () {
+    function Track(track_id, track_name, track_artist, track_length) {
+        this.track_id = track_id;
+        this.track_name = track_name;
+        this.track_artist = track_artist;
+        this.track_length = track_length;
+    }
+    return Track;
+}());
 //# sourceMappingURL=audio-player.js.map
