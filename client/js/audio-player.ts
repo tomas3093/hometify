@@ -9,9 +9,8 @@ let extension: string;
 const mediaPath = debug ? 'https://archive.org/download/hometify2017-09-01/' : 'http://192.168.1.5:2000/client/src/songs/';
 
 // Add user agent as an attribute on the <html> tag
-let b = document.documentElement;
-b.setAttribute('data-useragent', navigator.userAgent);
-b.setAttribute('data-platform', navigator.platform);
+document.documentElement.setAttribute('data-useragent', navigator.userAgent);
+document.documentElement.setAttribute('data-platform', navigator.platform);
 
 /**
  * Track info container
@@ -45,9 +44,7 @@ class AudioPlayer {
         this.track_id = 0;
         this.playing = false;
 
-        this.tracks = [new Track(0, "Can't stop the feeling", "Justin Timberlake", "0:00"),
-            new Track(1, "We Will Rock You", "Queen", "0:00"),
-            new Track(2, "Another Brick In The Wall", "Pink Floyd", "0:00")];
+        this.tracks = [];
     }
 }
 

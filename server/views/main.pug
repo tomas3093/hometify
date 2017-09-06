@@ -1,4 +1,6 @@
-//Main website layout
+//-
+    Main website structure
+
 doctype html
 
 html
@@ -10,11 +12,11 @@ html
 
         //CSS Files
         block css
-            link(rel="stylesheet" type="text/css" href="/client/css/default-layout.css")
+            link(rel="stylesheet" type="text/css" href="/client/css/main.css")
 
         //JS Files
         block scripts
-            script(src="/client/js/jquery-3.2.1.min.js")
+            script(src="/client/js/external_scripts/jquery-3.2.1.min.js")
 
     body
         //Header of website
@@ -36,6 +38,7 @@ html
 
         //Main content of website
         block content
+            div(id="content")
 
         //Audio player feature
         block player

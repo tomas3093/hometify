@@ -1,11 +1,14 @@
 extends main
 
+//-
+    Main template with audio player
+
 block append css
-    link(rel="stylesheet" type="text/css" href="/client/css/audio-player.css")
+    link(rel="stylesheet" type="text/css" href="/client/css/playable-main.css")
 
 block append scripts
-    script(src='/client/js/prefixfree-1.0.7.min.js')
-    script(src='/client/js/html5media-1.1.8.min.js')
+    script(src='/client/js/external_scripts/prefixfree-1.0.7.min.js')
+    script(src='/client/js/external_scripts/html5media-1.1.8.min.js')
     script(src='/client/js/audio-player.js')
 
 block player
