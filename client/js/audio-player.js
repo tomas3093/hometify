@@ -3,19 +3,27 @@
  * External File: https://api.html5media.info/1.1.8/html5media.min.js
  */
 var debug = true;
+
 var extension;
 var mediaPath = debug ? 'https://archive.org/download/hometify2017-09-01/' : 'http://192.168.1.5:2000/client/src/songs/';
+
 // Add user agent as an attribute on the <html> tag
 document.documentElement.setAttribute('data-useragent', navigator.userAgent);
 document.documentElement.setAttribute('data-platform', navigator.platform);
+
+
 jQuery(function ($) {
     var a = document.createElement('audio');
     var supportsMp3 = !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+
     //Audio player init
     extension = supportsMp3 ? '.mp3' : '.ogg';
+
     var audioPlayer = new AudioPlayer();
+
     var npAction = $('#npAction');
     var npTitle = $('#npTitle');
+
     //Event handlers attach
     var audio = $('#audio1').bind('play', function () {
         audioPlayer.playing = true;
@@ -36,6 +44,7 @@ jQuery(function ($) {
             loadTrack(audioPlayer.track_id);
         }
     }).get(0);
+
     var loadTrack = function (track_id) {
         $('.plSel').removeClass('plSel');
         $('#plList').find('li:eq(' + track_id + ')').addClass('plSel');
@@ -43,24 +52,23 @@ jQuery(function ($) {
         audioPlayer.track_id = track_id;
         audio.src = mediaPath + audioPlayer.tracks[track_id].track_id + extension;
     };
+
     var playTrack = function (track_id) {
         loadTrack(track_id);
         audio.play();
     };
-    var buildPlaylist = function () {
+
+    var buildPlaylist = (function () {
+
         $.each(audioPlayer.tracks, function (key, value) {
             var trackNumber = '' + value.track_id;
             var trackName = value.track_name;
             var trackLength = value.track_length;
-            if (trackNumber.toString().length === 1) {
-                trackNumber = '0' + trackNumber;
-            }
-            else {
-                trackNumber = '' + trackNumber;
-            }
+
             $('#plList').append('<li><div class="plItem"><div class="plNum">' + trackNumber + '.</div><div class="plTitle">' + trackName + '</div><div class="plLength">' + trackLength + '</div></div></li>');
         });
-    };
+    }());
+
     /**
      * Previous button click
      * @type {any | void}
@@ -79,6 +87,7 @@ jQuery(function ($) {
             loadTrack(audioPlayer.track_id);
         }
     });
+
     /**
      * Next button click
      * @type {any | void}
@@ -99,6 +108,7 @@ jQuery(function ($) {
             loadTrack(audioPlayer.track_id);
         }
     });
+
     /**
      * Playlist item click
      * @type {any | void}
@@ -111,22 +121,28 @@ jQuery(function ($) {
     });
     loadTrack(audioPlayer.track_id);
 });
+
 /**
  * AudioPlayer container
  */
 var AudioPlayer = (function () {
+
     function AudioPlayer() {
-        this.addTrackToPlaylist = function (track) {
-            this.tracks.push(track);
-        };
+
         this.track_id = 0;
         this.playing = false;
         this.tracks = [new Track(1, "skladba 1", "artist xyz", "2:22"),
             new Track(2, "skladba 2", "artist xyz", "2:22"),
             new Track(3, "skladba 3", "artist xyz", "2:22")];
+
+        this.addTrackToPlaylist = function (track) {
+            this.tracks.push(track);
+        };
     }
+
     return AudioPlayer;
 }());
+
 /**
  * Track info container
  */
@@ -139,4 +155,3 @@ var Track = (function () {
     }
     return Track;
 }());
-//# sourceMappingURL=audio-player.js.map

@@ -11,6 +11,9 @@ block append scripts
     script(src='/client/js/external_scripts/html5media-1.1.8.min.js' type="text/javascript")
     script(src='/client/js/audio-player.js' type="text/javascript")
 
+block append content
+    ul(id="plList")
+
 block player
     div(class="container")
         div(class="column add-bottom")
@@ -24,7 +27,5 @@ block player
                     div(id="tracks")
                         a(id="btnPrev") «
                         a(id="btnNext") »
-                div(id="plwrap")
-                    ul(id="plList")
 
         div(class="column add-bottom center")
