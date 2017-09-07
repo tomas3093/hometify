@@ -118,7 +118,7 @@ app.get('/new/artist', function (req, res) {
  */
 app.post('/new/artist', function (req, res) {
 
-    let data: TemplateData = new TemplateData("New artist", undefined,
+    /*let data: TemplateData = new TemplateData("New artist", undefined,
         undefined, undefined, "Add new artist");
 
     let artist: string = req.body.artist_name.trim();
@@ -157,7 +157,7 @@ app.post('/new/artist', function (req, res) {
         data.addWarningMsg('Error: Name ' + artist + ' contains forbidden characters or has wrong format!');
 
         res.render('artist-submit-form', { data: data });
-    }
+    }*/
 });
 
 
@@ -178,7 +178,7 @@ app.get('/new/album', function (req, res) {
  */
 app.post('/new/album', function (req, res) {
 
-    let data: TemplateData = new TemplateData("New album", undefined,
+    /*let data: TemplateData = new TemplateData("New album", undefined,
         undefined, undefined, "Add new album");
 
     let artist_name: string = req.body.artist_name.trim();
@@ -206,16 +206,16 @@ app.post('/new/album', function (req, res) {
                     if (db_res[0] == null) {
 
                         db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)",
-                                [album_name, album_year, artist_id], function (db_err2, db_res_2) {
+                            [album_name, album_year, artist_id], function (db_err2, db_res_2) {
 
-                            if (db_err2) {
-                                data.addWarningMsg('Error: ' + db_err2);
-                            } else {
-                                data.addSuccessMsg('Album ' + album_name + ' (' + album_year + ') added successfully');
-                            }
+                                if (db_err2) {
+                                    data.addWarningMsg('Error: ' + db_err2);
+                                } else {
+                                    data.addSuccessMsg('Album ' + album_name + ' (' + album_year + ') added successfully');
+                                }
 
-                            res.render('album-submit-form', { data: data });
-                        });
+                                res.render('album-submit-form', { data: data });
+                            });
 
                         //AK EXISTUJE
                     } else {
@@ -236,7 +236,7 @@ app.post('/new/album', function (req, res) {
 
             res.render('album-submit-form', { data: data });
         }
-    });
+    });*/
 });
 
 
@@ -331,12 +331,6 @@ app.post('/new/song', function (req, res) {
             res.render('song-submit-form', { data: data });
         }
     });*/
-});
-
-
-//AUDIO PLAYER TEST
-app.get('/player', function (req, res) {
-    res.render('audio-player-test', {});
 });
 
 

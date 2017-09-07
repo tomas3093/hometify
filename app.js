@@ -79,36 +79,46 @@ app.get('/new/artist', function (req, res) {
  * Submitted form data handle
  */
 app.post('/new/artist', function (req, res) {
-    var data = new TemplateData_1.TemplateData("New artist", undefined, undefined, undefined, "Add new artist");
-    var artist = req.body.artist_name.trim();
+    /*let data: TemplateData = new TemplateData("New artist", undefined,
+        undefined, undefined, "Add new artist");
+
+    let artist: string = req.body.artist_name.trim();
+
     //INPUT IS VALID
     if (artist.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$")) {
+
         //Overenie ci zadana hodnota uz existuje
         db.query('SELECT * FROM artists ' +
             'WHERE artist_name = ?', [artist], function (db_err, db_res) {
+
             //AK NEEXISTUJE, ZAPIS JU DO DB
             if (db_res[0] == null) {
-                db.query("INSERT INTO artists (artist_name) VALUES (?)", artist, function (db_err2, db_res_2) {
-                    if (db_err2) {
-                        data.addWarningMsg('Error: ' + db_err2);
-                    }
-                    else {
-                        data.addSuccessMsg('Artist ' + artist + ' added successfully');
-                    }
-                    res.render('artist-submit-form', { data: data });
-                });
+
+                db.query("INSERT INTO artists (artist_name) VALUES (?)", artist,
+                    function (db_err2, db_res_2) {
+
+                        if (db_err2) {
+                            data.addWarningMsg('Error: ' + db_err2);
+                        } else {
+                            data.addSuccessMsg('Artist ' + artist + ' added successfully');
+                        }
+
+                        res.render('artist-submit-form', { data: data });
+                    });
+
                 //AK EXISTUJE
-            }
-            else {
+            } else {
                 data.addWarningMsg('Error: ' + artist + ' already exists!');
+
                 res.render('artist-submit-form', { data: data });
             }
         });
-    }
-    else {
+
+    } else {
         data.addWarningMsg('Error: Name ' + artist + ' contains forbidden characters or has wrong format!');
+
         res.render('artist-submit-form', { data: data });
-    }
+    }*/
 });
 //NEW ALBUM FORM
 /**
@@ -122,50 +132,65 @@ app.get('/new/album', function (req, res) {
  * Submitted form data handle
  */
 app.post('/new/album', function (req, res) {
-    var data = new TemplateData_1.TemplateData("New album", undefined, undefined, undefined, "Add new album");
-    var artist_name = req.body.artist_name.trim();
+    /*let data: TemplateData = new TemplateData("New album", undefined,
+        undefined, undefined, "Add new album");
+
+    let artist_name: string = req.body.artist_name.trim();
+
     //ARTIST VALIDATION
     db.query('SELECT artist_id FROM artists ' +
         'WHERE artist_name = ?', [artist_name], function (db_err, db_res) {
+
         //IF ARTIST EXISTS
         if (db_res[0] != null) {
-            var artist_id_1 = db_res[0].artist_id;
-            var album_name_1 = req.body.album_name.trim();
-            var album_year_1 = parseInt(req.body.album_year);
+
+            let artist_id: number = db_res[0].artist_id;
+
+            let album_name: string = req.body.album_name.trim();
+            let album_year: number = parseInt(req.body.album_year);
+
             //ALBUM INPUT VALIDATION
-            if (album_name_1.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
-                album_year_1 > 1800 && album_year_1 <= new Date().getFullYear()) {
+            if (album_name.match("^[a-zA-Z0-9][ a-zA-Z0-9\\-']+$") &&
+                album_year > 1800 && album_year <= new Date().getFullYear()) {
+
                 db.query('SELECT * FROM albums ' +
-                    'WHERE album_name = ?', [album_name_1], function (db_err, db_res) {
+                    'WHERE album_name = ?', [album_name], function (db_err, db_res) {
+
                     //AK NEEXISTUJE ROVNAKY ALBUM ZAPIS HO DB
                     if (db_res[0] == null) {
-                        db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)", [album_name_1, album_year_1, artist_id_1], function (db_err2, db_res_2) {
-                            if (db_err2) {
-                                data.addWarningMsg('Error: ' + db_err2);
-                            }
-                            else {
-                                data.addSuccessMsg('Album ' + album_name_1 + ' (' + album_year_1 + ') added successfully');
-                            }
-                            res.render('album-submit-form', { data: data });
-                        });
+
+                        db.query("INSERT INTO albums (album_name, album_year, artist_id) VALUES (?, ?, ?)",
+                            [album_name, album_year, artist_id], function (db_err2, db_res_2) {
+
+                                if (db_err2) {
+                                    data.addWarningMsg('Error: ' + db_err2);
+                                } else {
+                                    data.addSuccessMsg('Album ' + album_name + ' (' + album_year + ') added successfully');
+                                }
+
+                                res.render('album-submit-form', { data: data });
+                            });
+
                         //AK EXISTUJE
-                    }
-                    else {
-                        data.addWarningMsg('Error: Album ' + album_name_1 + ' already exists!');
+                    } else {
+                        data.addWarningMsg('Error: Album ' + album_name + ' already exists!');
+
                         res.render('album-submit-form', { data: data });
                     }
                 });
-            }
-            else {
+
+            } else {
                 data.addWarningMsg('Error: Values contain forbidden characters or have wrong format!');
+
                 res.render('album-submit-form', { data: data });
             }
-        }
-        else {
+
+        } else {
             data.addWarningMsg('Error: Unknown artist!');
+
             res.render('album-submit-form', { data: data });
         }
-    });
+    });*/
 });
 //NEW SONG FORM
 /**
@@ -252,10 +277,6 @@ app.post('/new/song', function (req, res) {
             res.render('song-submit-form', { data: data });
         }
     });*/
-});
-//AUDIO PLAYER TEST
-app.get('/player', function (req, res) {
-    res.render('audio-player-test', {});
 });
 //########################### APIs ###########################
 /**
