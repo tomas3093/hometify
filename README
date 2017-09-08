@@ -11,6 +11,9 @@ TO-DO:
     - Dokoncit content-loader class
 
 CHANGELOG:
+    08.09.2017 9:43
+        + pridany content loader (este zatial nefunkcny) /client/js/content-loader.js
+
     07.09.2017 10:41
         + v databaze v tabulke 'songs' premenovany stlpec 'track' -> 'song_name'
         + prerobena struktura tabulky 'songs'

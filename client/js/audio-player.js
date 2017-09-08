@@ -11,22 +11,6 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
     var self = this;
 
     self.fileExtension = supportedFileFormatExtension;
-    //self.audioElement = audioElement;
-
-    /**
-     * EventListeners attach (Triggered by user)
-     * @type {jQuery}
-     */
-    self.audioElement = $('#audio1').bind('play', function () {
-        console.log('Event "play" fired');
-        self.playEvent();
-    }).bind('pause', function () {
-        console.log('Event "pause" fired');
-        self.pauseEvent();
-    }).bind('ended', function () {
-        console.log('Event "ended" fired');
-        self.endedEvent();
-    }).get(0);
 
     //AudioPlayer info labels
     self.npActionElement = npActionElement;
@@ -41,6 +25,18 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         new Song(1, "artist xyz", "skladba 1", 0, "2:22"),
         new Song(2, "artist xyz", "skladba 2", 0, "2:22"),
         new Song(3, "artist xyz", "skladba 3", 0, "2:22")];
+
+    /**
+     * EventListeners attach to HTML audio element (Events triggered by user)
+     * @type {jQuery}
+     */
+    self.audioElement = $('#audio1').bind('play', function () {
+        self.playEvent();
+    }).bind('pause', function () {
+        self.pauseEvent();
+    }).bind('ended', function () {
+        self.endedEvent();
+    }).get(0);
 
 
     //### METHODS ###
@@ -208,30 +204,32 @@ jQuery(function ($) {
     var playlistElement = $('#plList');
     var npActionElement = $('#npAction');
     var npTitleElement = $('#npTitle');
+    var btnPrev = $('#btnPrev');
+    var btnNext = $('#btnNext');
 
     var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
 
     /**
      * Previous button click
      */
-    var btnPrev = $('#btnPrev').click(function () {
+    btnPrev.click(function () {
         audioPlayer.previousSong();
     });
 
     /**
      * Next button click
      */
-    var btnNext = $('#btnNext').click(function () {
+    btnNext.click(function () {
         audioPlayer.nextSong();
     });
 
     /**
      * Playlist item click
      */
-    var li = playlistElement.find('li').click(function () {
+    playlistElement.find('li').click(function () {
         //TODO
 
-        var song_id = parseInt($(this).index()) + 1;
+        var song_id = parseInt($(this).index());
 
         console.log('Clicked! `song_id` = ' + song_id);
 
