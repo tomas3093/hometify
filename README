@@ -2,15 +2,22 @@ INFO:
     Zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
     Spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside
 
-    Aktualna hierarchia sablon:
-        main    -> playable-main    -> song-list
-                                    -> artist-list ... etc.
 
 TO-DO:
-    - Na hlavnej stranke zmenit playlist prehravaca tak, aby ako zdrojove subory bral aktualne vykresleny 'song-list'
-    - Dokoncit content-loader class
+    - vzhlad prehravaca
+    - pridat do 'song-list' trvanie pesnicky (duration)
+    - dizajn /artists (artist-list.css)
+
+    - song-list onclick eventListener -> pridanie polozky do playlistu
+
 
 CHANGELOG:
+    11.09.2017 10:52
+        + pridany subor s globalnymi premennymi /client/js/globals.js
+        + prepisane serverside zdrojaky kvoli implementacnym problemom -> odstraneny Typescript a ECMAScript 6 -> aplikacia bezi uz cisto na ECMAScript 5 (No 'strict mode')
+        + pridane subory artist-list.css, album-list.css
+        + zmeny v content-loader.js, audio-player.js
+
     08.09.2017 9:43
         + pridany content loader (este zatial nefunkcny) /client/js/content-loader.js
 

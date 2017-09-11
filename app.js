@@ -1,8 +1,8 @@
-"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var SongListData_1 = require("./server/classes/SongListData");
 var ArtistListData_1 = require("./server/classes/ArtistListData");
 var TemplateData_1 = require("./server/classes/TemplateData");
+
 var express = require('express');
 var getJSON = require('get-json');
 var bodyParser = require('body-parser');
@@ -11,15 +11,17 @@ var fs = require('fs-extra');
 var util = require('util');
 var app = express();
 var serv = require('http').Server(app);
+
+eval(fs.readFileSync('./client/js/globals.js')+'');
+
 //template engine options
 app.set('views', './server/views');
 app.set('view engine', 'pug');
+
 //support for json and url encoded bodies
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-var port = 2001;
-serv.listen(port);
-console.log('Server started at http://localhost:' + port);
+
 //Database
 var mysql = require('mysql');
 var db = mysql.createConnection({
@@ -28,23 +30,30 @@ var db = mysql.createConnection({
     password: "S3cur3DBRaspi",
     database: "hometify"
 });
+
+var port = 2001;
+serv.listen(port);
+console.log('Server started at http://localhost:' + port);
+
+
 //########################### ROUTES ###########################
+
 /**
  * Favourite songs
  */
-app.get('/', function (req, res) {
-    var templateData = new TemplateData_1.TemplateData("Hometify - Your home music streaming", undefined, undefined, undefined, "Most played songs");
+app.get(ROOT_URL.url, function (req, res) {
+    var templateData = new TemplateData_1.TemplateData(ROOT_URL.title, undefined, undefined, undefined, "Most played songs");
     res.render('playable-main', { data: templateData });
 });
+
 /**
  * All artists
  */
-app.get('/artists', function (req, res) {
-    getJSON('http://localhost:2000/data/artists', function (db_err, items) {
-        var data = new ArtistListData_1.ArtistListData("Artists", undefined, undefined, undefined, "Artists", items);
-        res.render('artist-list', { data: data });
-    });
+app.get(ARTISTS_URL.url, function (req, res) {
+    var templateData = new TemplateData_1.TemplateData(ARTISTS_URL.title, undefined, undefined, undefined, "Artists");
+    res.render('playable-main', { data: templateData });
 });
+
 /**
  * Songs of certain artist
  */
@@ -56,6 +65,7 @@ app.get('/artist/:id', function (req, res) {
         });
     });
 });
+
 /**
  * All songs from certain album
  */
@@ -67,6 +77,7 @@ app.get('/album/:id', function (req, res) {
         });
     });
 });
+
 //NEW ARTIST FORM
 /**
  * Form for new artist submition
@@ -75,6 +86,7 @@ app.get('/new/artist', function (req, res) {
     var data = new TemplateData_1.TemplateData("New artist", undefined, undefined, undefined, "Add new artist");
     res.render('artist-submit-form', { data: data });
 });
+
 /**
  * Submitted form data handle
  */
@@ -120,6 +132,7 @@ app.post('/new/artist', function (req, res) {
         res.render('artist-submit-form', { data: data });
     }*/
 });
+
 //NEW ALBUM FORM
 /**
  * Form for new album submition
@@ -128,6 +141,7 @@ app.get('/new/album', function (req, res) {
     var data = new TemplateData_1.TemplateData("New album", undefined, undefined, undefined, "Add new album");
     res.render('album-submit-form', { data: data });
 });
+
 /**
  * Submitted form data handle
  */
@@ -192,6 +206,7 @@ app.post('/new/album', function (req, res) {
         }
     });*/
 });
+
 //NEW SONG FORM
 /**
  * Form for new song submition
@@ -200,6 +215,7 @@ app.get('/new/song', function (req, res) {
     var data = new TemplateData_1.TemplateData("New song upload", undefined, undefined, undefined, "Add new song upload");
     res.render('song-submit-form', { data: data });
 });
+
 /**
  * Submitted form data handle
  */
@@ -278,7 +294,10 @@ app.post('/new/song', function (req, res) {
         }
     });*/
 });
+
+
 //########################### APIs ###########################
+
 /**
  * Favourite song list
  * Pridat ORDER BY 'play_time' a obmedzenie poctu vysledkov
@@ -289,7 +308,7 @@ app.get('/data/favourites', function (req, res) {
     db.query("SELECT songs.song_id AS song_id, " +
         "artists.artist_id AS artist_id, " +
         "songs.album_id AS album_id, " +
-        "songs.track AS track_name, " +
+        "songs.song_name AS song_name, " +
         "artists.artist_name AS artist_name, " +
         "albums.album_name AS album_name " +
         "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
@@ -302,6 +321,7 @@ app.get('/data/favourites', function (req, res) {
         }
     });
 });
+
 /**
  * Search for items which contains certain string in table artists
  *
@@ -316,6 +336,7 @@ app.get('/data/artists/contains/:string', function (req, res) {
         res.json(rows);
     });
 });
+
 /**
  * Search for items which starts with certain string in table artists
  *
@@ -330,6 +351,7 @@ app.get('/data/artists/search/:string', function (req, res) {
         res.json(rows);
     });
 });
+
 /**
  * List of all artists
  *
@@ -344,6 +366,7 @@ app.get('/data/artists', function (req, res) {
         res.json(rows);
     });
 });
+
 /**
  * All songs from certain artist
  *
@@ -367,6 +390,7 @@ app.get('/data/artist/:id/songs', function (req, res) {
         }
     });
 });
+
 /**
  * All albums from certain artist
  *
@@ -385,6 +409,7 @@ app.get('/data/artist/:id/albums', function (req, res) {
         res.json(rows);
     });
 });
+
 //TODO dorobit songs_count a albums_count
 /**
  * Info about certain artist
@@ -435,6 +460,7 @@ app.get('/data/artist/:id', function (req, res) {
         });
     }
 });
+
 /**
  * List of albums
  *
@@ -453,6 +479,7 @@ app.get('/data/albums', function (req, res) {
         res.json(rows);
     });
 });
+
 /**
  * Songs from certain album
  *
@@ -476,6 +503,7 @@ app.get('/data/album/:id/songs', function (req, res) {
         }
     });
 });
+
 /**
  * Info about certain album
  *
@@ -497,8 +525,8 @@ app.get('/data/album/:id', function (req, res) {
         }
     });
 });
+
 /**
  * Users can only access '/client' directory
  */
 app.use('/client', express.static(__dirname + '/client'));
-//# sourceMappingURL=app.js.map

@@ -21,7 +21,7 @@ export class SongData {
     song_id:number;
     artist_id:number;
     album_id:number;
-    track_name:string;
+    song_name:string;
     artist_name:string;
     album_name:string;
 }

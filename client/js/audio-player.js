@@ -3,8 +3,70 @@
  * External File: https://api.html5media.info/1.1.8/html5media.min.js
  */
 
+//TODO Klikanie na hviezdu v song-liste
+//TEST
+function clicked(id) {
+    console.log(id);
+}
+
+//### VARIABLES ###
+
+const DEBUG = true;
+var mediaPath = DEBUG ? 'https://archive.org/download/hometify2017-09-01/' : SERVER_URL.url + '/client/src/songs/';
+
+// Add user agent as an attribute on the <html> tag
+document.documentElement.setAttribute('data-useragent', navigator.userAgent);
+document.documentElement.setAttribute('data-platform', navigator.platform);
+
+jQuery(function ($) {
+
+    //Check for supported audio format
+    var a = document.createElement('audio');
+    var supportsMp3 = !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
+    var fileExtension = supportsMp3 ? '.mp3' : '.ogg';
+
+    //AudioPlayer HTML Elements
+    var playlistElement = $('#plList');
+    var npActionElement = $('#npAction');
+    var npTitleElement = $('#npTitle');
+    var btnPrev = $('#btnPrev');
+    var btnNext = $('#btnNext');
+
+    var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
+
+    /**
+     * Previous button click
+     */
+    btnPrev.click(function () {
+        audioPlayer.previousSong();
+    });
+
+    /**
+     * Next button click
+     */
+    btnNext.click(function () {
+        audioPlayer.nextSong();
+    });
+
+    /**
+     * Playlist item click
+     */
+    playlistElement.find('li').click(function () {
+        //TODO
+
+        var song_id = parseInt($(this).index());
+
+        console.log('Clicked! `song_id` = ' + song_id);
+
+        audioPlayer.playSongFile(song_id);
+    });
+});
+
+
+//################## LOGIC ##################
+
 /**
- * AudioPlayer object
+ * AudioPlayer logic
  */
 function AudioPlayer(npActionElement, npTitleElement, playlistElement, supportedFileFormatExtension) {
 
@@ -21,10 +83,8 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
     self.currentlySelectedSongId = 0;
     self.isPlaying = false;
 
-    self.playlist = [
-        new Song(1, "artist xyz", "skladba 1", 0, "2:22"),
-        new Song(2, "artist xyz", "skladba 2", 0, "2:22"),
-        new Song(3, "artist xyz", "skladba 3", 0, "2:22")];
+    //TODO Vymazat tento playlist a pridat funkcnost na img hviezdy ktora prida song do tohto playlistu
+    self.playlist = [];
 
     /**
      * EventListeners attach to HTML audio element (Events triggered by user)
@@ -72,7 +132,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         else {
             self.audioElement.pause();
             self.currentlySelectedSongId = 0;
-            self.loadSongFile(audioPlayer.currentlySelectedSongId);
+            self.loadSongFile(self.currentlySelectedSongId);
         }
     };
 
@@ -81,7 +141,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * @param song_id
      */
     self.loadSongFile  = function (song_id) {
-        //TODO Dat prec kod ktory pracuje s UI
+        //TODO Dat prec kod ktory pracuje s UI + kontrola ci pozadovana pesnicka existuje
 
         $('.plSel').removeClass('plSel');
         self.playlistElement.find('li:eq(' + song_id + ')').addClass('plSel');
@@ -159,7 +219,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * Add new song to existing playlist and rebuild it
      * @param song
      */
-    self.addTrackToPlaylist = function (song) {
+    self.addSongToPlaylist = function (song) {
         self.playlist.push(song);
         self.buildPlaylist();
     };
@@ -168,11 +228,11 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * Initialisation
      */
     self.buildPlaylist();
-    self.loadSongFile(self.currentlySelectedSongId);
+    //self.loadSongFile(self.currentlySelectedSongId);
 }
 
 /**
- * Song object
+ * Object representing song as it is in database
  */
 function Song(song_id, artist_id, song_name, album_id, duration) {
 
@@ -184,55 +244,3 @@ function Song(song_id, artist_id, song_name, album_id, duration) {
     self.album_id = album_id;
     self.duration = duration;
 }
-
-var debug = true;
-
-var mediaPath = debug ? 'https://archive.org/download/hometify2017-09-01/' : 'http://192.168.1.5:2000/client/src/playlist/';
-
-// Add user agent as an attribute on the <html> tag
-document.documentElement.setAttribute('data-useragent', navigator.userAgent);
-document.documentElement.setAttribute('data-platform', navigator.platform);
-
-jQuery(function ($) {
-
-    //Check for supported audio format
-    var a = document.createElement('audio');
-    var supportsMp3 = !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
-    var fileExtension = supportsMp3 ? '.mp3' : '.ogg';
-
-    //AudioPlayer HTML Elements
-    var playlistElement = $('#plList');
-    var npActionElement = $('#npAction');
-    var npTitleElement = $('#npTitle');
-    var btnPrev = $('#btnPrev');
-    var btnNext = $('#btnNext');
-
-    var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
-
-    /**
-     * Previous button click
-     */
-    btnPrev.click(function () {
-        audioPlayer.previousSong();
-    });
-
-    /**
-     * Next button click
-     */
-    btnNext.click(function () {
-        audioPlayer.nextSong();
-    });
-
-    /**
-     * Playlist item click
-     */
-    playlistElement.find('li').click(function () {
-        //TODO
-
-        var song_id = parseInt($(this).index());
-
-        console.log('Clicked! `song_id` = ' + song_id);
-
-        audioPlayer.playSongFile(song_id);
-    });
-});
