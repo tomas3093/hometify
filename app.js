@@ -310,7 +310,8 @@ app.get('/data/favourites', function (req, res) {
         "songs.album_id AS album_id, " +
         "songs.song_name AS song_name, " +
         "artists.artist_name AS artist_name, " +
-        "albums.album_name AS album_name " +
+        "albums.album_name AS album_name, " +
+        "songs.duration AS duration " +
         "FROM ((songs INNER JOIN artists ON songs.artist_id = artists.artist_id) " +
         "INNER JOIN albums ON songs.album_id = albums.album_id)", function (err, songData) {
         if (err) {

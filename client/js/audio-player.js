@@ -3,12 +3,6 @@
  * External File: https://api.html5media.info/1.1.8/html5media.min.js
  */
 
-//TODO Klikanie na hviezdu v song-liste
-//TEST
-function clicked(id) {
-    console.log(id);
-}
-
 //### VARIABLES ###
 
 const DEBUG = true;
@@ -33,6 +27,150 @@ jQuery(function ($) {
     var btnNext = $('#btnNext');
 
     var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
+
+
+    //######################## CONTENT LOADER #########################################
+    //### CONSTANTS AND VARIABLES ###
+
+    var contentElement = $('#content');
+
+
+    //################# FUNCTIONS #################
+
+    /**
+     * load content of page
+     */
+    var loadPageContent = (function loadPageContent() {
+
+        var requestedUrl = getCurrentUrl();
+
+        if (requestedUrl === ROOT_URL.url) {
+            $.getJSON(SERVER_URL.url + "/data/favourites", function (data) {
+                renderSongList(data);
+            });
+        } else if (requestedUrl === ARTISTS_URL.url) {
+            $.getJSON(SERVER_URL.url + "/data/artists", function (data) {
+                renderArtistList(data);
+            });
+        }
+
+        //
+    })();
+
+    /**
+     * change url without reloading
+     * @param path
+     * @param title
+     * @param data
+     */
+    function changePage(path, title, data) {
+
+        if (path !== getCurrentUrl()) {
+
+            //remove previous content
+            contentElement.innerHTML = '';
+
+            window.history.pushState(data, title, path);
+            document.title = title;
+
+            //load content
+            loadPageContent();
+        }
+    }
+
+    /**
+     * Return current url
+     * @returns {string}
+     */
+    function getCurrentUrl() {
+        return window.location.pathname;
+    }
+
+    //################# RENDER FUNCTIONS #################
+
+    /**
+     * Create SongList HTML structure with given data
+     * @param songs
+     */
+    function renderSongList(songs) {
+        contentElement.prepend('<ul class="song-list"></ul>');
+        var song_list = $('.song-list');
+
+        songs.forEach(function (song) {
+            song_list.append(
+                '<li class="song">' +
+                '<div class="img-box">' +
+                '<img src="/client/img/flaticon/note.svg" alt="" width="50" height="50">' +
+                '</div>'+
+
+                '<div class="info-box">' +
+
+                //Identifikacne udaje pesnicky
+                '<p class="song_id" hidden>' + song.song_id + '</p>' +
+                '<p class="artist_id" hidden>' + song.artist_id + '</p>' +
+                '<p class="song_name" hidden>' + song.song_name + '</p>' +
+                '<p class="album_id" hidden>' + song.album_id + '</p>' +
+                '<p class="duration" hidden>' + song.duration + '</p>' +
+
+                '<p><strong>' + song.artist_name + '</strong></p>' +
+                '<p>' + song.song_name + '</p>' +
+                '<p><img src="/client/img/flaticon/play.svg" width="25" height="25"></p>' +
+                '<p class="addToPlaylistBtn"><img src="/client/img/flaticon/bold-star.svg" width="25" height="25"></p>' +
+                '<p><img src="/client/img/flaticon/more.svg" width="25" height="25"></p>' +
+                '</div>' +
+                '</li>');
+        });
+
+        /**
+         * Add onclick function to buttons
+         */
+        $('.addToPlaylistBtn').click(function () {
+
+            var song_id = $(this).prevAll('.song_id').text();
+            var artist_id = $(this).prevAll('.artist_id').text();
+            var song_name = $(this).prevAll('.song_name').text();
+            var album_id = $(this).prevAll('.album_id').text();
+            var duration = $(this).prevAll('.duration').text();
+
+            audioPlayer.addSongToPlaylist(new Song(song_id, artist_id, song_name, album_id, duration));
+        });
+    }
+
+    /**
+     * Create ArtistList HTML structure with given data
+     * @param artists
+     */
+    function renderArtistList(artists) {
+
+        contentElement.prepend('<ul class="artist-list"></ul>');
+        var artist_list = $('.artist-list');
+
+        artists.forEach(function (artist) {
+            artist_list.append(
+                '<li class="artist">' +
+                '<div class="img-box">' +
+                '<img src="/client/img/flaticon/note.svg" alt="" width="50" height="50">' +
+                '</div>'+
+
+                '<div class="info-box">' +
+                '<p><strong><a href="#">' + artist.artist_name + '</a></strong></p>' +
+                '<p><a href="#">25 songs</a></p>' +
+                '</div>' +
+                '</li>');
+        });
+    }
+
+    //### TESTING ###
+
+    contentElement.append('<button id="btn">Change url (test)</button>');
+
+    var btn = $('#btn').on('click', function () {
+        console.log('clicked!');
+        changePage(ARTISTS_URL.url, 'Favourite songs', {});
+    });
+
+
+    //######################## AUDIO PLAYER #########################################
 
     /**
      * Previous button click
@@ -83,7 +221,6 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
     self.currentlySelectedSongId = 0;
     self.isPlaying = false;
 
-    //TODO Vymazat tento playlist a pridat funkcnost na img hviezdy ktora prida song do tohto playlistu
     self.playlist = [];
 
     /**
@@ -204,7 +341,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
     self.buildPlaylist = function () {
 
         //Remove current playlist
-        self.playlistElement.innerHTML = '';
+        self.playlistElement.html('');
 
         //Build new playlist
         self.playlist.forEach(function (song) {
@@ -217,11 +354,22 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
 
     /**
      * Add new song to existing playlist and rebuild it
-     * @param song
+     * @param newSong
      */
-    self.addSongToPlaylist = function (song) {
-        self.playlist.push(song);
-        self.buildPlaylist();
+    self.addSongToPlaylist = function (newSong) {
+
+        //avoid duplicate entry
+        var containDuplicate = false;
+        self.playlist.forEach(function (songFromPlaylist) {
+            if (songFromPlaylist.song_id === newSong.song_id) {
+                containDuplicate = true;
+            }
+        });
+
+        if (!containDuplicate) {
+            self.playlist.push(newSong);
+            self.buildPlaylist();
+        }
     };
 
     /**

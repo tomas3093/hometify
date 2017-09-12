@@ -12,6 +12,11 @@ TO-DO:
 
 
 CHANGELOG:
+    12.09.2017 19:37
+        + merge suborov content-loader.js a audio-player.js -> vsetky skripty su v jednom subore
+        + pridane identifikacne udaje kazdej pesnicky v song-liste (funkcia renderSongList() v subore audio-player.js)
+        + pridana funkcnost -> kliknutie na hviezdu v song-liste prida polozku do playlistu
+
     11.09.2017 10:52
         + pridany subor s globalnymi premennymi /client/js/globals.js
         + prepisane serverside zdrojaky kvoli implementacnym problemom -> odstraneny Typescript a ECMAScript 6 -> aplikacia bezi uz cisto na ECMAScript 5 (No 'strict mode')
