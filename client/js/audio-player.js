@@ -114,9 +114,9 @@ jQuery(function ($) {
 
                 '<p><strong>' + song.artist_name + '</strong></p>' +
                 '<p>' + song.song_name + '</p>' +
-                '<p><img src="/client/img/flaticon/play.svg" width="25" height="25"></p>' +
-                '<p class="addToPlaylistBtn"><img src="/client/img/flaticon/bold-star.svg" width="25" height="25"></p>' +
-                '<p><img src="/client/img/flaticon/more.svg" width="25" height="25"></p>' +
+                '<p><i class="fa fa-play fa-2x" style="color:#cc2b00"></i></p>' +
+                '<p class="addToPlaylistBtn"><i class="fa fa-plus fa-2x" style="color:#cc2b00"></i></p>' +
+                '<p><i class="fa fa-ellipsis-v fa-2x" style="color:#cc2b00"></i></p>' +
                 '</div>' +
                 '</li>');
         });
@@ -164,7 +164,7 @@ jQuery(function ($) {
 
     contentElement.append('<button id="btn">Change url (test)</button>');
 
-    var btn = $('#btn').on('click', function () {
+    $('#btn').on('click', function () {
         console.log('clicked!');
         changePage(ARTISTS_URL.url, 'Favourite songs', {});
     });
@@ -185,26 +185,13 @@ jQuery(function ($) {
     btnNext.click(function () {
         audioPlayer.nextSong();
     });
-
-    /**
-     * Playlist item click
-     */
-    playlistElement.find('li').click(function () {
-        //TODO
-
-        var song_id = parseInt($(this).index());
-
-        console.log('Clicked! `song_id` = ' + song_id);
-
-        audioPlayer.playSongFile(song_id);
-    });
 });
 
 
 //################## LOGIC ##################
 
 /**
- * AudioPlayer logic
+ * AudioPlayer and playlist logic
  */
 function AudioPlayer(npActionElement, npTitleElement, playlistElement, supportedFileFormatExtension) {
 
@@ -218,10 +205,43 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
 
     self.playlistElement = playlistElement;
 
-    self.currentlySelectedSongId = 0;
+    self.playlistSongIndex = 0;
     self.isPlaying = false;
 
-    self.playlist = [];
+    self.playlist = {
+        songs: [],
+        addNewSong: function (newSong) {
+
+            //avoid duplicate entry
+            var containDuplicate = false;
+            this.songs.forEach(function (songFromPlaylist) {
+                if (songFromPlaylist.song_id === newSong.song_id) {
+                    containDuplicate = true;
+                }
+            });
+
+            if (!containDuplicate) {
+                this.songs.push(newSong);
+                self.buildPlaylist();
+            }
+        },
+
+        getSongById: function (song_id) {
+
+            var requestedSong = null;
+            this.songs.forEach(function (songFromPlaylist) {
+                if (songFromPlaylist.song_id === song_id) {
+                    requestedSong = songFromPlaylist;
+                }
+            });
+
+            return requestedSong;
+        },
+
+        removeSong: function (playlistSongIndex) {
+            this.songs.splice(playlistSongIndex, 1);
+        }
+    };
 
     /**
      * EventListeners attach to HTML audio element (Events triggered by user)
@@ -261,39 +281,43 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         self.npActionElement.text('Paused...');
 
         //If current index is not at the end of the playlist
-        if ((self.currentlySelectedSongId + 1) < self.playlist.length) {
-            self.currentlySelectedSongId++;
-            self.loadSongFile(self.currentlySelectedSongId);
+        if ((self.playlistSongIndex + 1) < self.playlist.songs.length) {
+
+            self.playlistSongIndex++;
+            self.loadSongFile(self.playlistSongIndex);
             self.audioElement.play();
-        }
-        else {
+
+        } else {
             self.audioElement.pause();
-            self.currentlySelectedSongId = 0;
-            self.loadSongFile(self.currentlySelectedSongId);
+            self.playlistSongIndex = 0;
+            self.loadSongFile(self.playlistSongIndex);
         }
     };
 
     /**
-     * Loads given song
-     * @param song_id
+     * Load song from existing playlist
+     * @param playlistSongIndex
      */
-    self.loadSongFile  = function (song_id) {
-        //TODO Dat prec kod ktory pracuje s UI + kontrola ci pozadovana pesnicka existuje
+    self.loadSongFile  = function (playlistSongIndex) {
 
-        $('.plSel').removeClass('plSel');
-        self.playlistElement.find('li:eq(' + song_id + ')').addClass('plSel');
-        self.npTitleElement.text(self.playlist[song_id].song_name);
-        self.currentlySelectedSongId = song_id;
+        if (playlistSongIndex >= 0 && playlistSongIndex < self.playlist.songs.length) {
 
-        self.audioElement.src = mediaPath + self.playlist[song_id].song_id + self.fileExtension;
+            self.playlistSongIndex = playlistSongIndex;
+            self.npTitleElement.text(self.playlist.songs[playlistSongIndex].song_name);
+            self.audioElement.src = mediaPath + self.playlist.songs[self.playlistSongIndex].song_id + self.fileExtension;
+
+        } else {
+            self.audioElement.pause();
+            console.log('Error: Selected song not found');
+        }
     };
 
     /**
-     * Load and play given song
-     * @param song_id
+     * Load and play song from existing playlist
+     * @param playlistSongIndex
      */
-    self.playSongFile = function (song_id) {
-        self.loadSongFile(song_id);
+    self.playSongFile = function (playlistSongIndex) {
+        self.loadSongFile(playlistSongIndex);
         self.audioElement.play();
     };
 
@@ -301,17 +325,18 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * Skip to previous song in playlist
      */
     self.previousSong = function () {
-        if ((self.currentlySelectedSongId - 1) > -1) {
-            self.currentlySelectedSongId--;
-            self.loadSongFile(self.currentlySelectedSongId);
+
+        if (self.playlistSongIndex - 1 > -1) {
+            self.playlistSongIndex--;
+            self.loadSongFile(self.playlistSongIndex);
+
             if (self.isPlaying) {
                 self.audioElement.play();
             }
-        }
-        else {
+
+        } else {
             self.audioElement.pause();
-            self.currentlySelectedSongId = 0;
-            self.loadSongFile(self.currentlySelectedSongId);
+            self.playlistSongIndex = 0;
         }
     };
 
@@ -319,9 +344,9 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * Skip to next song in playlist
      */
     self.nextSong = function () {
-        if ((self.currentlySelectedSongId + 1) < self.playlist.length) {
-            self.currentlySelectedSongId++;
-            self.loadSongFile(self.currentlySelectedSongId);
+        if (self.playlistSongIndex + 1 < self.playlist.songs.length) {
+            self.playlistSongIndex++;
+            self.loadSongFile(self.playlistSongIndex);
 
             if (self.isPlaying) {
                 self.audioElement.play();
@@ -330,8 +355,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         else {
             self.npActionElement.text('Paused...');
             self.audioElement.pause();
-            self.currentlySelectedSongId = 0;
-            self.loadSongFile(self.currentlySelectedSongId);
+            self.playlistSongIndex = 0;
         }
     };
 
@@ -344,12 +368,33 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         self.playlistElement.html('');
 
         //Build new playlist
-        self.playlist.forEach(function (song) {
+        self.playlist.songs.forEach(function (songFromPlaylist) {
             self.playlistElement.append(
-                '<li><div class="plItem"><div class="plNum">' + song.song_id + '</div>' +
-                '<div class="plTitle">' + song.song_name + '</div>' +
-                '<div class="plLength">' + song.duration + '</div></div></li>');
-        })
+                '<li><div class="plItem">' +
+                '<i class="fa fa-times fa-2x removeSongFromPlaylist" style="color:#cc2b00"></i>' +
+                //'<div class="plNum">' + (self.playlist.songs.indexOf(songFromPlaylist) + 1) + '</div>' +
+                '<div class="plTitle">' + songFromPlaylist.song_name + '</div>' +
+                '<div class="plLength">' + songFromPlaylist.duration + '</div>' +
+                '</div></li>');
+        });
+
+        /**
+         * Add play feature to items in playlist
+         */
+        playlistElement.find('li').click(function () {
+
+            var playlistSongIndex = parseInt($(this).index());
+            self.playSongFile(playlistSongIndex);
+        });
+
+        /**
+         * Add remove feature to items in playlist
+         */
+        playlistElement.find('.removeSongFromPlaylist').click(function () {
+
+            var playlistSongIndex = parseInt($(this).index());
+            self.removeSongFromPlaylist(playlistSongIndex);
+        });
     };
 
     /**
@@ -357,26 +402,24 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * @param newSong
      */
     self.addSongToPlaylist = function (newSong) {
+        self.playlist.addNewSong(newSong);
+        self.buildPlaylist();
+    };
 
-        //avoid duplicate entry
-        var containDuplicate = false;
-        self.playlist.forEach(function (songFromPlaylist) {
-            if (songFromPlaylist.song_id === newSong.song_id) {
-                containDuplicate = true;
-            }
-        });
-
-        if (!containDuplicate) {
-            self.playlist.push(newSong);
-            self.buildPlaylist();
-        }
+    /**
+     * Remove selected song from existing playlist and rebuild it
+     * @param playlistSongIndex
+     */
+    self.removeSongFromPlaylist = function (playlistSongIndex) {
+        self.playlist.removeSong(playlistSongIndex);
+        self.buildPlaylist();
     };
 
     /**
      * Initialisation
      */
     self.buildPlaylist();
-    //self.loadSongFile(self.currentlySelectedSongId);
+    //self.loadSongFile(self.playlistSongIndex);
 }
 
 /**

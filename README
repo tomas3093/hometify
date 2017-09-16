@@ -8,10 +8,13 @@ TO-DO:
     - pridat do 'song-list' trvanie pesnicky (duration)
     - dizajn /artists (artist-list.css)
 
-    - song-list onclick eventListener -> pridanie polozky do playlistu
-
 
 CHANGELOG:
+    16.09.2017 15:52
+        + implementovany Font Awesome
+        + pridavanie a odstranovanie poloziek z playlistu
+        + pridane pesnicky do song-listu
+
     12.09.2017 19:37
         + merge suborov content-loader.js a audio-player.js -> vsetky skripty su v jednom subore
         + pridane identifikacne udaje kazdej pesnicky v song-liste (funkcia renderSongList() v subore audio-player.js)
