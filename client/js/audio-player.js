@@ -23,7 +23,8 @@ jQuery(function ($) {
     var playlistElement = $('#plList');
     var npActionElement = $('#npAction');
     var npTitleElement = $('#npTitle');
-    var btnPrev = $('#btnPrev');
+    var btnBack = $('#btnBack');
+    var btnPlay = $('#btnPlay');
     var btnNext = $('#btnNext');
 
     var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
@@ -32,16 +33,18 @@ jQuery(function ($) {
     //######################## CONTENT LOADER #########################################
     //### CONSTANTS AND VARIABLES ###
 
-    var contentElement = $('#content');
+    var contentElement = $('#main-content');
 
+    loadPageContent();
 
     //################# FUNCTIONS #################
 
     /**
      * load content of page
      */
-    var loadPageContent = (function loadPageContent() {
+    function loadPageContent() {
 
+        contentElement.html('');
         var requestedUrl = getCurrentUrl();
 
         if (requestedUrl === ROOT_URL.url) {
@@ -55,7 +58,7 @@ jQuery(function ($) {
         }
 
         //
-    })();
+    }
 
     /**
      * change url without reloading
@@ -101,7 +104,7 @@ jQuery(function ($) {
                 '<li class="song">' +
                 '<div class="img-box">' +
                 '<img src="/client/img/flaticon/note.svg" alt="" width="50" height="50">' +
-                '</div>'+
+                '</div>' +
 
                 '<div class="info-box">' +
 
@@ -114,9 +117,9 @@ jQuery(function ($) {
 
                 '<p><strong>' + song.artist_name + '</strong></p>' +
                 '<p>' + song.song_name + '</p>' +
-                '<p><i class="fa fa-play fa-2x" style="color:#cc2b00"></i></p>' +
-                '<p class="addToPlaylistBtn"><i class="fa fa-plus fa-2x" style="color:#cc2b00"></i></p>' +
-                '<p><i class="fa fa-ellipsis-v fa-2x" style="color:#cc2b00"></i></p>' +
+                '<p class="control"><i class="fa fa-play fa-2x" style="color:#cc2b00"></i></p>' +
+                '<p class="control addToPlaylistBtn"><i class="fa fa-plus fa-2x" style="color:#cc2b00"></i></p>' +
+                '<p class="control"><i class="fa fa-ellipsis-v fa-2x" style="color:#cc2b00"></i></p>' +
                 '</div>' +
                 '</li>');
         });
@@ -166,16 +169,29 @@ jQuery(function ($) {
 
     $('#btn').on('click', function () {
         console.log('clicked!');
-        changePage(ARTISTS_URL.url, 'Favourite songs', {});
+        changePage(ARTISTS_URL.url, ARTISTS_URL.title, {});
     });
 
 
     //######################## AUDIO PLAYER #########################################
 
     /**
+     * Play button click
+     */
+    btnPlay.click(function () {
+        if (audioPlayer.isPlaying) {
+            audioPlayer.audioElement.pause();
+            btnPlay.html('<i class="fa fa-play" style="color:#cc2b00"></i>');
+        } else {
+            //audioPlayer.audioElement.play();
+            btnPlay.html('<i class="fa fa-pause" style="color:#cc2b00"></i>');
+        }
+    });
+
+    /**
      * Previous button click
      */
-    btnPrev.click(function () {
+    btnBack.click(function () {
         audioPlayer.previousSong();
     });
 
@@ -247,7 +263,7 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * EventListeners attach to HTML audio element (Events triggered by user)
      * @type {jQuery}
      */
-    self.audioElement = $('#audio1').bind('play', function () {
+    self.audioElement = $('#audioElement').bind('play', function () {
         self.playEvent();
     }).bind('pause', function () {
         self.pauseEvent();
@@ -371,8 +387,8 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         self.playlist.songs.forEach(function (songFromPlaylist) {
             self.playlistElement.append(
                 '<li><div class="plItem">' +
-                '<i class="fa fa-times fa-2x removeSongFromPlaylist" style="color:#cc2b00"></i>' +
-                //'<div class="plNum">' + (self.playlist.songs.indexOf(songFromPlaylist) + 1) + '</div>' +
+                '<i class="control removeSongFromPlaylist fa fa-times fa-2x" style="color:#cc2b00"></i>' +
+                '<div class="plNum">' + (self.playlist.songs.indexOf(songFromPlaylist) + 1) + '</div>' +
                 '<div class="plTitle">' + songFromPlaylist.song_name + '</div>' +
                 '<div class="plLength">' + songFromPlaylist.duration + '</div>' +
                 '</div></li>');
@@ -395,6 +411,8 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
             var playlistSongIndex = parseInt($(this).index());
             self.removeSongFromPlaylist(playlistSongIndex);
         });
+
+        self.loadSongFile(self.playlistSongIndex);
     };
 
     /**
