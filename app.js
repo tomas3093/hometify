@@ -1,8 +1,3 @@
-Object.defineProperty(exports, "__esModule", { value: true });
-var SongListData_1 = require("./server/classes/SongListData");
-var ArtistListData_1 = require("./server/classes/ArtistListData");
-var TemplateData_1 = require("./server/classes/TemplateData");
-
 var express = require('express');
 var getJSON = require('get-json');
 var bodyParser = require('body-parser');
@@ -12,6 +7,7 @@ var util = require('util');
 var app = express();
 var serv = require('http').Server(app);
 
+//GLOBAL VARIABLES
 eval(fs.readFileSync('./client/js/globals.js')+'');
 
 //template engine options
@@ -42,40 +38,28 @@ console.log('Server started at http://localhost:' + port);
  * Favourite songs
  */
 app.get(ROOT_URL.url, function (req, res) {
-    var templateData = new TemplateData_1.TemplateData(ROOT_URL.title, undefined, undefined, undefined, "Most played songs");
-    res.render('playable-main', { data: templateData });
+    res.render('main');
 });
 
 /**
  * All artists
  */
 app.get(ARTISTS_URL.url, function (req, res) {
-    var templateData = new TemplateData_1.TemplateData(ARTISTS_URL.title, undefined, undefined, undefined, "Artists");
-    res.render('playable-main', { data: templateData });
+    res.render('main');
 });
 
 /**
  * Songs of certain artist
  */
 app.get('/artist/:id', function (req, res) {
-    getJSON('http://localhost:2000/data/artist/' + req.params.id + '/songs', function (db_err, items) {
-        getJSON('http://localhost:2000/data/artist/' + req.params.id, function (db_err2, artistData) {
-            var data = new SongListData_1.SongListData(artistData.artist_name, undefined, undefined, undefined, artistData.artist_name, items);
-            res.render('song-list', { data: data });
-        });
-    });
+    res.render('main');
 });
 
 /**
  * All songs from certain album
  */
 app.get('/album/:id', function (req, res) {
-    getJSON('http://localhost:2000/data/album/' + req.params.id + '/songs', function (db_err, items) {
-        getJSON('http://localhost:2000/data/album/' + req.params.id, function (db_err2, albumData) {
-            var data = new SongListData_1.SongListData(albumData.album_name, undefined, undefined, undefined, albumData.album_name + " (" + albumData.album_year + ")", items);
-            res.render('song-list', { data: data });
-        });
-    });
+    res.render('main');
 });
 
 //NEW ARTIST FORM
@@ -83,8 +67,7 @@ app.get('/album/:id', function (req, res) {
  * Form for new artist submition
  */
 app.get('/new/artist', function (req, res) {
-    var data = new TemplateData_1.TemplateData("New artist", undefined, undefined, undefined, "Add new artist");
-    res.render('artist-submit-form', { data: data });
+    res.render('artist-submit-form');
 });
 
 /**
@@ -138,8 +121,7 @@ app.post('/new/artist', function (req, res) {
  * Form for new album submition
  */
 app.get('/new/album', function (req, res) {
-    var data = new TemplateData_1.TemplateData("New album", undefined, undefined, undefined, "Add new album");
-    res.render('album-submit-form', { data: data });
+    res.render('album-submit-form');
 });
 
 /**
@@ -212,8 +194,7 @@ app.post('/new/album', function (req, res) {
  * Form for new song submition
  */
 app.get('/new/song', function (req, res) {
-    var data = new TemplateData_1.TemplateData("New song upload", undefined, undefined, undefined, "Add new song upload");
-    res.render('song-submit-form', { data: data });
+    res.render('song-submit-form');
 });
 
 /**
@@ -300,11 +281,10 @@ app.post('/new/song', function (req, res) {
 
 /**
  * Favourite song list
- * Pridat ORDER BY 'play_time' a obmedzenie poctu vysledkov
- *
- * Returns SongData[] JSON
  */
 app.get('/data/favourites', function (req, res) {
+    //TODO Pridat obmedzenie poctu vysledkov
+
     db.query("SELECT songs.song_id AS song_id, " +
         "artists.artist_id AS artist_id, " +
         "songs.album_id AS album_id, " +
@@ -325,8 +305,6 @@ app.get('/data/favourites', function (req, res) {
 
 /**
  * Search for items which contains certain string in table artists
- *
- * Returns ArtistData[] JSON
  */
 app.get('/data/artists/contains/:string', function (req, res) {
     db.query("SELECT artist_id AS artist_id, " +
@@ -340,8 +318,6 @@ app.get('/data/artists/contains/:string', function (req, res) {
 
 /**
  * Search for items which starts with certain string in table artists
- *
- * Returns ArtistData[] JSON
  */
 app.get('/data/artists/search/:string', function (req, res) {
     db.query("SELECT artist_id AS artist_id, " +
@@ -355,8 +331,6 @@ app.get('/data/artists/search/:string', function (req, res) {
 
 /**
  * List of all artists
- *
- * Returns ArtistData[] JSON
  */
 app.get('/data/artists', function (req, res) {
     db.query("SELECT artist_id AS artist_id, " +
@@ -370,8 +344,6 @@ app.get('/data/artists', function (req, res) {
 
 /**
  * All songs from certain artist
- *
- * Returns SongData[] JSON
  */
 app.get('/data/artist/:id/songs', function (req, res) {
     db.query("SELECT songs.song_id AS song_id, " +
@@ -394,8 +366,6 @@ app.get('/data/artist/:id/songs', function (req, res) {
 
 /**
  * All albums from certain artist
- *
- * Returns AlbumData[] JSON
  */
 app.get('/data/artist/:id/albums', function (req, res) {
     db.query("SELECT albums.album_id AS album_id, " +
@@ -416,8 +386,6 @@ app.get('/data/artist/:id/albums', function (req, res) {
  * Info about certain artist
  * IF param 'id' is number  -> info about artist with certain 'artist_id'
  * IF param 'id' is text    -> info about artist with certain 'artist_name'
- *
- * Returns ArtistData JSON
  */
 app.get('/data/artist/:id', function (req, res) {
     var artistData = new ArtistListData_1.ArtistData();
@@ -464,8 +432,6 @@ app.get('/data/artist/:id', function (req, res) {
 
 /**
  * List of albums
- *
- * Returns AlbumData[] JSON
  */
 app.get('/data/albums', function (req, res) {
     //songs_count not implemented
@@ -483,8 +449,6 @@ app.get('/data/albums', function (req, res) {
 
 /**
  * Songs from certain album
- *
- * Returns SongData[] JSON
  */
 app.get('/data/album/:id/songs', function (req, res) {
     db.query("SELECT songs.song_id AS song_id, " +
@@ -507,8 +471,6 @@ app.get('/data/album/:id/songs', function (req, res) {
 
 /**
  * Info about certain album
- *
- * Returns AlbumData JSON
  */
 app.get('/data/album/:id', function (req, res) {
     db.query("SELECT albums.album_id AS album_id, " +

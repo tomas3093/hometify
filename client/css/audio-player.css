@@ -1,0 +1,17 @@
+.control {
+    cursor: pointer;
+}
+
+.controls li {
+    display: inline-block;
+}
+
+#player-cover {
+    padding: 10px;
+    margin: 10px 0;
+    border: solid blue 1px;
+}
+
+#playlist-wrap {
+    border: solid #ff2821 1px;
+}

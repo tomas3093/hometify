@@ -12,28 +12,27 @@ var mediaPath = DEBUG ? 'https://archive.org/download/hometify2017-09-01/' : SER
 document.documentElement.setAttribute('data-useragent', navigator.userAgent);
 document.documentElement.setAttribute('data-platform', navigator.platform);
 
-jQuery(function ($) {
+$(document).ready(function () {
 
     //Check for supported audio format
     var a = document.createElement('audio');
     var supportsMp3 = !!(a.canPlayType && a.canPlayType('audio/mpeg;').replace(/no/, ''));
     var fileExtension = supportsMp3 ? '.mp3' : '.ogg';
 
+    var contentElement = $('#main-content');
+
     //AudioPlayer HTML Elements
-    var playlistElement = $('#plList');
-    var npActionElement = $('#npAction');
-    var npTitleElement = $('#npTitle');
+    var playlistElement = $('#playlist');
+    var playerSongNameLabel = $('#playerSongNameLabel');
+    var playerArtistNameLabel = $('#playerArtistNameLabel');
     var btnBack = $('#btnBack');
-    var btnPlay = $('#btnPlay');
+    var btnPlayPause = $('#btnPlayPause');
     var btnNext = $('#btnNext');
 
-    var audioPlayer = new AudioPlayer(npActionElement, npTitleElement, playlistElement, fileExtension);
+    var audioPlayer = new AudioPlayer(btnPlayPause, playerSongNameLabel, playerArtistNameLabel, playlistElement, fileExtension);
 
 
     //######################## CONTENT LOADER #########################################
-    //### CONSTANTS AND VARIABLES ###
-
-    var contentElement = $('#main-content');
 
     loadPageContent();
 
@@ -96,32 +95,27 @@ jQuery(function ($) {
      * @param songs
      */
     function renderSongList(songs) {
-        contentElement.prepend('<ul class="song-list"></ul>');
+        contentElement.prepend('<table class="song-list"></table>');
         var song_list = $('.song-list');
 
         songs.forEach(function (song) {
             song_list.append(
-                '<li class="song">' +
-                '<div class="img-box">' +
-                '<img src="/client/img/flaticon/note.svg" alt="" width="50" height="50">' +
-                '</div>' +
-
-                '<div class="info-box">' +
+                '<tr class="song">' +
+                '<td class="img-box"><img src="/client/img/flaticon/note.svg" alt="" width="50" height="50"></td>' +
 
                 //Identifikacne udaje pesnicky
-                '<p class="song_id" hidden>' + song.song_id + '</p>' +
-                '<p class="artist_id" hidden>' + song.artist_id + '</p>' +
-                '<p class="song_name" hidden>' + song.song_name + '</p>' +
-                '<p class="album_id" hidden>' + song.album_id + '</p>' +
-                '<p class="duration" hidden>' + song.duration + '</p>' +
+                '<td class="song_id" hidden>' + song.song_id + '</td>' +
+                '<td class="artist_id" hidden>' + song.artist_id + '</td>' +
+                '<td class="song_name" hidden>' + song.song_name + '</td>' +
+                '<td class="album_id" hidden>' + song.album_id + '</td>' +
+                '<td class="duration" hidden>' + song.duration + '</td>' +
 
-                '<p><strong>' + song.artist_name + '</strong></p>' +
-                '<p>' + song.song_name + '</p>' +
-                '<p class="control"><i class="fa fa-play fa-2x" style="color:#cc2b00"></i></p>' +
-                '<p class="control addToPlaylistBtn"><i class="fa fa-plus fa-2x" style="color:#cc2b00"></i></p>' +
-                '<p class="control"><i class="fa fa-ellipsis-v fa-2x" style="color:#cc2b00"></i></p>' +
-                '</div>' +
-                '</li>');
+                '<td><strong>' + song.artist_name + '</strong></td>' +
+                '<td>' + song.song_name + '</td>' +
+                '<td class="control"><i class="fa fa-play fa-2x" style="color:#cc2b00"></i></td>' +
+                '<td class="control addToPlaylistBtn"><i class="fa fa-plus fa-2x" style="color:#cc2b00"></i></td>' +
+                '<td class="control"><i class="fa fa-ellipsis-v fa-2x" style="color:#cc2b00"></i></td>' +
+                '</tr>');
         });
 
         /**
@@ -163,29 +157,13 @@ jQuery(function ($) {
         });
     }
 
-    //### TESTING ###
-
-    contentElement.append('<button id="btn">Change url (test)</button>');
-
-    $('#btn').on('click', function () {
-        console.log('clicked!');
-        changePage(ARTISTS_URL.url, ARTISTS_URL.title, {});
-    });
-
-
     //######################## AUDIO PLAYER #########################################
 
     /**
      * Play button click
      */
-    btnPlay.click(function () {
-        if (audioPlayer.isPlaying) {
-            audioPlayer.audioElement.pause();
-            btnPlay.html('<i class="fa fa-play" style="color:#cc2b00"></i>');
-        } else {
-            //audioPlayer.audioElement.play();
-            btnPlay.html('<i class="fa fa-pause" style="color:#cc2b00"></i>');
-        }
+    btnPlayPause.click(function () {
+        audioPlayer.playPauseEvent();
     });
 
     /**
@@ -201,6 +179,15 @@ jQuery(function ($) {
     btnNext.click(function () {
         audioPlayer.nextSong();
     });
+
+    //### TESTING ###
+
+    contentElement.append('<button id="btn">Change url (test)</button>');
+
+    $('#btn').on('click', function () {
+        console.log('clicked!');
+        changePage(ARTISTS_URL.url, ARTISTS_URL.title, {});
+    });
 });
 
 
@@ -209,19 +196,21 @@ jQuery(function ($) {
 /**
  * AudioPlayer and playlist logic
  */
-function AudioPlayer(npActionElement, npTitleElement, playlistElement, supportedFileFormatExtension) {
+function AudioPlayer(btnPlayPause, playerSongNameLabel, playerArtistNameLabel, playlistElement, supportedFileFormatExtension) {
 
     var self = this;
 
     self.fileExtension = supportedFileFormatExtension;
 
+    self.btnPlayPause = btnPlayPause;
+
     //AudioPlayer info labels
-    self.npActionElement = npActionElement;
-    self.npTitleElement = npTitleElement;
+    self.playerSongNameLabel = playerSongNameLabel;
+    self.playerArtistNameLabel = playerArtistNameLabel;
 
     self.playlistElement = playlistElement;
 
-    self.playlistSongIndex = 0;
+    self.playlistSongIndex = NO_SONG_SELECTED;
     self.isPlaying = false;
 
     self.playlist = {
@@ -254,6 +243,15 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
             return requestedSong;
         },
 
+        getSongByIndex: function (playlistSongIndex) {
+            try {
+                return self.playlist.songs[playlistSongIndex];
+            } catch (indexOutOfBoundsException) {
+                console.log('Error: ' + indexOutOfBoundsException);
+                return null;
+            }
+        },
+
         removeSong: function (playlistSongIndex) {
             this.songs.splice(playlistSongIndex, 1);
         }
@@ -278,8 +276,9 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * `play` event handler
      */
     self.playEvent = function () {
-        self.isPlaying = true;
-        self.npActionElement.text('Now Playing...');
+        if (self.playlist.songs.length > 0) {
+            self.isPlaying = true;
+        }
     };
 
     /**
@@ -287,14 +286,12 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      */
     self.pauseEvent = function () {
         self.isPlaying = false;
-        self.npActionElement.text('Paused...');
     };
 
     /**
      * 'ended' event handler
      */
     self.endedEvent = function () {
-        self.npActionElement.text('Paused...');
 
         //If current index is not at the end of the playlist
         if ((self.playlistSongIndex + 1) < self.playlist.songs.length) {
@@ -305,26 +302,51 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
 
         } else {
             self.audioElement.pause();
-            self.playlistSongIndex = 0;
+            self.playlistSongIndex = NO_SONG_SELECTED;
             self.loadSongFile(self.playlistSongIndex);
         }
     };
 
     /**
+     * playPause event handler (fired when playPause button is clicked)
+     */
+    self.playPauseEvent = function () {
+        if (self.playlist.songs.length > 0) {
+
+            if (self.playlistSongIndex === NO_SONG_SELECTED) {
+                self.playSongFile(0);
+            } else if (self.isPlaying) {
+                self.audioElement.pause();
+                btnPlayPause.find('i').attr('class', 'fa fa-play fa-2x');
+            } else {
+                self.audioElement.play();
+                btnPlayPause.find('i').attr('class', 'fa fa-pause fa-2x');
+            }
+        }
+    };
+
+    /**
      * Load song from existing playlist
+     *
+     * Return true if successfully loaded selected song, otherwise return false
      * @param playlistSongIndex
      */
     self.loadSongFile  = function (playlistSongIndex) {
 
-        if (playlistSongIndex >= 0 && playlistSongIndex < self.playlist.songs.length) {
+        var selectedSong = self.playlist.getSongByIndex(playlistSongIndex);
+
+        if (selectedSong !== null) {
 
             self.playlistSongIndex = playlistSongIndex;
-            self.npTitleElement.text(self.playlist.songs[playlistSongIndex].song_name);
-            self.audioElement.src = mediaPath + self.playlist.songs[self.playlistSongIndex].song_id + self.fileExtension;
+
+            self.playerSongNameLabel.html(selectedSong.song_name);
+            self.playerArtistNameLabel.html('by ' + selectedSong.artist_id);
+            self.audioElement.src = mediaPath + selectedSong.song_id + self.fileExtension;
+
+            return true;
 
         } else {
-            self.audioElement.pause();
-            console.log('Error: Selected song not found');
+            return false;
         }
     };
 
@@ -333,8 +355,11 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * @param playlistSongIndex
      */
     self.playSongFile = function (playlistSongIndex) {
-        self.loadSongFile(playlistSongIndex);
-        self.audioElement.play();
+
+        if (self.loadSongFile(playlistSongIndex)) {
+            self.audioElement.play();
+            self.playPauseEvent();
+        }
     };
 
     /**
@@ -352,7 +377,6 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
 
         } else {
             self.audioElement.pause();
-            self.playlistSongIndex = 0;
         }
     };
 
@@ -367,11 +391,9 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
             if (self.isPlaying) {
                 self.audioElement.play();
             }
-        }
-        else {
-            self.npActionElement.text('Paused...');
+
+        } else {
             self.audioElement.pause();
-            self.playlistSongIndex = 0;
         }
     };
 
@@ -386,20 +408,19 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
         //Build new playlist
         self.playlist.songs.forEach(function (songFromPlaylist) {
             self.playlistElement.append(
-                '<li><div class="plItem">' +
-                '<i class="control removeSongFromPlaylist fa fa-times fa-2x" style="color:#cc2b00"></i>' +
-                '<div class="plNum">' + (self.playlist.songs.indexOf(songFromPlaylist) + 1) + '</div>' +
-                '<div class="plTitle">' + songFromPlaylist.song_name + '</div>' +
-                '<div class="plLength">' + songFromPlaylist.duration + '</div>' +
-                '</div></li>');
+                '<tr>' +
+                '<td class="control playlistSongTitle">' + songFromPlaylist.song_name + '</td>' +
+                '<td class="playlistSongDuration">' + songFromPlaylist.duration + '</td>' +
+                '<td class="control removeSongFromPlaylist"><i class="fa fa-trash"></i></td>' +
+                '</tr>');
         });
 
         /**
          * Add play feature to items in playlist
          */
-        playlistElement.find('li').click(function () {
+        playlistElement.find('.playlistSongTitle').click(function () {
 
-            var playlistSongIndex = parseInt($(this).index());
+            var playlistSongIndex = parseInt($(this).parent().index());
             self.playSongFile(playlistSongIndex);
         });
 
@@ -408,11 +429,9 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
          */
         playlistElement.find('.removeSongFromPlaylist').click(function () {
 
-            var playlistSongIndex = parseInt($(this).index());
-            self.removeSongFromPlaylist(playlistSongIndex);
+            var index = parseInt($(this).parent().index());
+            self.removeSongFromPlaylist(index);
         });
-
-        self.loadSongFile(self.playlistSongIndex);
     };
 
     /**
@@ -429,7 +448,13 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * @param playlistSongIndex
      */
     self.removeSongFromPlaylist = function (playlistSongIndex) {
+
         self.playlist.removeSong(playlistSongIndex);
+
+        if (self.playlistSongIndex === playlistSongIndex) {
+            self.nextSong();
+        }
+
         self.buildPlaylist();
     };
 
@@ -437,7 +462,6 @@ function AudioPlayer(npActionElement, npTitleElement, playlistElement, supported
      * Initialisation
      */
     self.buildPlaylist();
-    //self.loadSongFile(self.playlistSongIndex);
 }
 
 /**

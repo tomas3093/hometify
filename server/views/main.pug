@@ -9,48 +9,38 @@ html
         meta(name="viewport" content="width=device-width, initial-scale=1.0")
         meta(name="theme-color" content="#1e2327")
 
-        title=locals.data.title
-
         //CSS Files
         block css
             link(rel="stylesheet" type="text/css" href="/client/css/font-awesome.min.css")
-            link(rel="stylesheet" type="text/css" href="/client/css/masterpiece.css")
-            //link(rel="stylesheet" type="text/css" href="/client/css/main.css")
-
-            //link(rel="stylesheet" type="text/css" href="/client/css/playable-main.css")
-            //link(rel="stylesheet" type="text/css" href="/client/css/song-list.css")
-            //link(rel="stylesheet" type="text/css" href="/client/css/artist-list.css")
-            //link(rel="stylesheet" type="text/css" href="/client/css/album-list.css")
+            link(rel="stylesheet" type="text/css" href="/client/css/main.css")
+            link(rel="stylesheet" type="text/css" href="/client/css/audio-player.css")
 
         //JS Files
         block scripts
             script(src="/client/js/external_scripts/jquery-3.2.1.min.js" type="text/javascript")
-            script(src="/client/js/globals.js" type="text/javascript")
-
             script(src='/client/js/external_scripts/prefixfree-1.0.7.min.js' type="text/javascript")
             script(src='/client/js/external_scripts/html5media-1.1.8.min.js' type="text/javascript")
+
+            script(src="/client/js/globals.js" type="text/javascript")
             script(src='/client/js/audio-player.js' type="text/javascript")
 
     body
-        //-
-            div(class="heading")
-                h2=locals.data.heading
-
-
-        //Audio player controls
-        aside(id="sidebar")
-            ul(id="plList")
+        //Sidebar
+        div(id="sidebar")
+            div(id="playlist-wrap")
+                h2 Playlist
+                table(id="playlist")
 
             div(id="player")
                 div(id="player-cover")
-                    span(id="npAction") Paused...
-                    span(id="npTitle") ---
+                    div(id="playerSongNameLabel")
+                    div(id="playerArtistNameLabel")
 
                 div(class="player-controls")
                     ul(class="controls controls-main")
-                        li: button(id="btnBack" class="control" type="button" disabled="" title="Back" aria-label="Back"): i(class="fa fa-step-backward" style="color:#cc2b00")
-                        li: button(id="btnPlay" class="control" type="button" disabled="" title="Play" aria-label="Play"): i(class="fa fa-play" style="color:#cc2b00")
-                        li: button(id="btnNext" class="control" type="button" disabled="" title="Next" aria-label="Next"): i(class="fa fa-step-forward" style="color:#cc2b00")
+                        li: button(id="btnBack" class="control" type="button" title="Back" aria-label="Back"): i(class="fa fa-step-backward" style="color:#cc2b00")
+                        li: button(id="btnPlayPause" class="control" type="button" title="Play" aria-label="Play"): i(class="fa fa-play fa-2x" style="color:#cc2b00")
+                        li: button(id="btnNext" class="control" type="button" title="Next" aria-label="Next"): i(class="fa fa-step-forward" style="color:#cc2b00")
 
                     ul(class="controls controls-options")
                         li: button(class="control" type="button" disabled="" title="Mute" aria-label="Mute"): i(class="fa fa-volume-off" style="color:#cc2b00")
@@ -60,11 +50,9 @@ html
 
         //Main content of website
         div(id="content-wrapper")
-
-            //Header of website
-            header
-                h1 Hometify
+            header: h1 Hometify
 
             div(id="main-content")
 
+        //HTML5 Audio
         audio(id="audioElement" preload='', controls='' hidden)
