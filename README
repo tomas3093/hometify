@@ -1,13 +1,16 @@
-INFO:
-    Zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
-    Spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside
+Projekt weboveho hudobneho prehravaca
 
+FEATURES:
+    Pesnicky ulozene v databaze na serveri v lokalnej sieti
+    Kazdy kto ma pristup si moze prehravat pesnicky priamo na stranke, robit playlisty, uploadovat nove etc..
 
 TO-DO:
     - vzhlad prehravaca
     - bug pri odstranovani pesniciek z playlistu
     - pridat do 'song-list' trvanie pesnicky (duration)
     - dizajn /artists (artist-list.css)
+    - zobrazovanie poloziek artists, songs, albums bude dynamicke -> cez AJAX
+    - spracovanie formularov - vkladanie novych zaznamov a editovanie bude cez POST -> serverside
 
 
 CHANGELOG:
